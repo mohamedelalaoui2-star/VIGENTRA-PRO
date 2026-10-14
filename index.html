@@ -34,8 +34,8 @@
 <script>
 /* CONFIGURATION : remplace ces deux valeurs par celles de Supabase > Project Settings > API.
    Utiliser uniquement la clé publique/publishable (anon). JAMAIS la clé service_role. */
-const SUPABASE_URL = "COLLE_ICI_URL_SUPABASE";
-const SUPABASE_ANON_KEY = "COLLE_ICI_CLE_PUBLIQUE_SUPABASE";
+const SUPABASE_URL = "https://vdoolfdxtqgjqzltxloo.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_KU1Rdv08vpOfvNxdCqno8Q_AN49L-Pd";
 const configured = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("COLLE_ICI") && !SUPABASE_ANON_KEY.includes("COLLE_ICI");
 let sb=null,user=null,profile=null,section="dashboard",cache={agents:[],sites:[],shifts:[],time_entries:[],invoices:[]};
 const $=id=>document.getElementById(id);
