@@ -1,85 +1,296 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#090e18"><meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>VIGENTRA PRO — Sécurité privée</title>
-<style>
-:root{--bg:#080c14;--panel:#101827;--panel2:#141f31;--line:#263349;--text:#f2f5fb;--muted:#98a7bc;--blue:#3978f6;--red:#f04452;--green:#2dc98a;--amber:#ffbf47}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top right,#13233e 0,transparent 42%),var(--bg);color:var(--text);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:12px;padding:11px 14px;background:var(--blue);color:white;font-weight:700}button.secondary{background:#202c40;border:1px solid var(--line)}button.danger{background:#6f2630}button:disabled{opacity:.5;cursor:not-allowed}input,select,textarea{width:100%;background:#0a111e;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px;margin-top:5px}label{display:block;color:var(--muted);font-size:12px;margin-bottom:10px}h1,h2,h3,p{margin-top:0}h1{font-size:22px;margin-bottom:4px}h2{font-size:17px}.muted{color:var(--muted)}.tiny{font-size:12px;color:var(--muted)}.shell{max-width:1200px;margin:auto;padding:18px 16px 96px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}.brand{display:flex;gap:10px;align-items:center}.logo{height:42px;width:42px;border-radius:13px;background:linear-gradient(135deg,var(--blue),#172d59);display:grid;place-items:center;font-weight:900;border:1px solid #4d7ff7}.brandname{font-weight:900;letter-spacing:1.5px}.brandname span{color:var(--red)}.status{font-size:11px;color:#9db7ff;background:#142748;border:1px solid #29446e;padding:5px 8px;border-radius:99px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.card{background:linear-gradient(145deg,rgba(20,31,49,.98),rgba(13,21,34,.98));border:1px solid var(--line);border-radius:17px;padding:16px;min-width:0}.metric{font-size:28px;font-weight:850;margin:7px 0}.metriclabel{font-size:12px;color:var(--muted)}.section{margin-top:18px}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.sectionhead h2{margin:0}.nav{display:flex;gap:8px;overflow:auto;padding:0 0 12px;margin-bottom:12px}.nav button{white-space:nowrap;background:#121b2b;border:1px solid var(--line);color:#bdc8d9}.nav button.active{background:#17366a;border-color:#3b70df;color:white}.row{display:flex;gap:8px;align-items:center}.row>*{min-width:0}.grow{flex:1}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:560px}th,td{text-align:left;padding:12px 9px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:600}td strong{font-weight:700}.pill{display:inline-block;border-radius:99px;padding:4px 8px;font-size:11px;background:#203047;color:#c7d6ed}.pill.red{background:#48202a;color:#ffb4bd}.pill.green{background:#153b31;color:#8ff0c8}.pill.amber{background:#47391f;color:#ffda8a}.hidden{display:none!important}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.actions{display:flex;gap:8px;flex-wrap:wrap}.empty{padding:22px;text-align:center;color:var(--muted)}.notice{border:1px solid #5d4826;background:#2c2518;color:#ffdda0;padding:12px;border-radius:12px;font-size:13px;line-height:1.45}.good{border-color:#245541;background:#102b23;color:#a4f1d0}.login{max-width:440px;margin:9vh auto;padding:18px}.login .card{padding:24px}.bottomnav{display:none}.toast{position:fixed;bottom:18px;left:16px;right:16px;max-width:600px;margin:auto;background:#1c2b42;border:1px solid #3a4e6e;padding:13px 16px;border-radius:12px;z-index:10;box-shadow:0 12px 35px #0008}.two{display:grid;grid-template-columns:1.3fr 1fr;gap:12px}.callout{border-left:3px solid var(--red);padding:10px 12px;background:#241720;border-radius:0 10px 10px 0;color:#ffd0d5;font-size:13px}
-@media(max-width:760px){.shell{padding:14px 12px 100px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.card{padding:13px}.metric{font-size:24px}.top{align-items:flex-start}.status{display:none}.nav{display:none}.bottomnav{display:flex;position:fixed;bottom:0;left:0;right:0;background:#0b111dF2;border-top:1px solid var(--line);padding:8px 5px calc(8px + env(safe-area-inset-bottom));z-index:5;justify-content:space-around;backdrop-filter:blur(15px)}.bottomnav button{background:transparent;border:0;padding:7px 4px;color:#aab7cb;font-size:10px;display:flex;flex-direction:column;gap:4px;align-items:center}.bottomnav button.active{color:#fff}.bottomnav b{font-size:17px}.formgrid,.two{grid-template-columns:1fr}.sectionhead{align-items:flex-start}.top button{padding:9px 10px;font-size:12px}.login{margin:5vh auto}.metriclabel{min-height:30px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>VIGENTRA PRO</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #101827; color: #fff;
+    }
+    header { margin-bottom: 24px; }
+    h1 { color: #60a5fa; margin-bottom: 5px; }
+    .card {
+      background: #1e293b; padding: 18px;
+      border-radius: 14px; margin-bottom: 18px;
+    }
+    input, button {
+      width: 100%; padding: 13px; margin-top: 10px;
+      border-radius: 8px; border: 1px solid #475569;
+      font-size: 16px;
+    }
+    input { background: #0f172a; color: white; }
+    button {
+      background: #2563eb; color: white;
+      border: none; font-weight: bold; cursor: pointer;
+    }
+    button.danger { background: #b91c1c; }
+    .status { color: #93c5fd; overflow-wrap: anywhere; }
+    .item {
+      padding: 12px; background: #0f172a;
+      margin-top: 8px; border-radius: 8px;
+      overflow-wrap: anywhere;
+    }
+    .hidden { display: none; }
+    small { color: #cbd5e1; }
+  </style>
 </head>
 <body>
-<div id="login" class="login">
- <div class="card">
-  <div class="brand" style="margin-bottom:22px"><div class="logo">V</div><div><div class="brandname">VIGENTRA <span>PRO</span></div><div class="tiny">Gestion de sécurité privée</div></div></div>
-  <h1>Connexion sécurisée</h1><p class="muted">Connectez-vous à votre espace entreprise.</p>
-  <form id="loginForm"><label>Adresse e-mail<input id="email" type="email" autocomplete="username" required placeholder="vous@entreprise.fr"></label><label>Mot de passe<input id="password" type="password" autocomplete="current-password" required placeholder="••••••••" minlength="6"></label><div class="actions"><button type="submit" class="grow">Se connecter</button><button type="button" id="signupBtn" class="secondary">Créer un compte</button></div></form>
-  <p class="tiny" style="margin-top:14px">Le premier compte doit être promu responsable par l’administrateur Supabase (instructions fournies).</p>
-  <div id="loginMsg" class="tiny" style="margin-top:12px"></div>
- </div>
-</div>
-<div id="app" class="hidden">
- <div class="shell">
-  <header class="top"><div class="brand"><div class="logo">V</div><div><div class="brandname">VIGENTRA <span>PRO</span></div><div class="tiny" id="welcome">Pilotage opérationnel</div></div></div><div class="row"><span id="rolePill" class="status">ESPACE RESPONSABLE</span><button class="secondary" id="logout">Déconnexion</button></div></header>
-  <nav class="nav" id="topnav"></nav>
-  <div id="view"></div>
- </div>
- <nav class="bottomnav" id="bottomnav"></nav>
-</div>
-<div id="toast" class="toast hidden"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <header>
+    <h1>VIGENTRA PRO</h1>
+    <div>Gestion professionnelle de sécurité privée</div>
+    <p id="status" class="status">Configuration requise</p>
+  </header>
+
+  <section class="card" id="loginCard">
+    <h2>Connexion</h2>
+    <input id="configUrl" placeholder="https://vdoolfdxtqgjqzltxloo.supabase.co">
+    <input id="configKey" placeholder="sb_publishable_KU1Rdv08vpOfvNxdCqno8Q_AN49L-Pd">
+    <button id="connectBtn">Connecter Supabase</button>
+    <hr>
+    <input id="loginEmail" type="email" placeholder="Adresse e-mail">
+    <input id="loginPassword" type="password" placeholder="Mot de passe">
+    <button id="loginBtn">Se connecter</button>
+    <button id="signupBtn">Créer mon compte</button>
+  </section>
+
+  <main id="app" class="hidden">
+    <section class="card">
+      <h2>Tableau de bord</h2>
+      <p>Agents : <strong id="agentCount">0</strong></p>
+      <p>Sites : <strong id="siteCount">0</strong></p>
+      <button id="refreshBtn">Actualiser</button>
+      <button id="logoutBtn" class="danger">Se déconnecter</button>
+    </section>
+
+    <section class="card">
+      <h2>Ajouter un agent</h2>
+      <input id="agentName" placeholder="Nom et prénom" required>
+      <input id="agentEmail" type="email" placeholder="E-mail (facultatif)">
+      <input id="agentPhone" type="tel" placeholder="Téléphone (facultatif)">
+      <button id="addAgentBtn">Enregistrer l'agent</button>
+      <div id="agentsList"></div>
+    </section>
+
+    <section class="card">
+      <h2>Créer un site client</h2>
+      <input id="siteName" placeholder="Nom du site client" required>
+      <button id="addSiteBtn">Enregistrer le site</button>
+      <div id="sitesList"></div>
+    </section>
+  </main>
+
 <script>
-/* CONFIGURATION : remplace ces deux valeurs par celles de Supabase > Project Settings > API.
-   Utiliser uniquement la clé publique/publishable (anon). JAMAIS la clé service_role. */
-const SUPABASE_URL = "https://vdoolfdxtqgjqzltxloo.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_KU1Rdv08vpOfvNxdCqno8Q_AN49L-Pd";
-const configured = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("COLLE_ICI") && !SUPABASE_ANON_KEY.includes("COLLE_ICI");
-let sb=null,user=null,profile=null,section="dashboard",cache={agents:[],sites:[],shifts:[],time_entries:[],invoices:[]};
-const $=id=>document.getElementById(id);
-const money=n=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR'}).format(Number(n||0));
-const dateFr=d=>d?new Date(d+'T00:00:00').toLocaleDateString('fr-FR'):'—';
-function toast(s){$('toast').textContent=s;$('toast').classList.remove('hidden');setTimeout(()=>$('toast').classList.add('hidden'),3200)}
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-const navItems=[['dashboard','⌂','Accueil'],['planning','▦','Planning'],['pointage','◷','Pointage'],['agents','♙','Agents'],['sites','⌖','Sites'],['factures','€','Factures'],['assistant','✦','Assistant IA']];
-function canManage(){return profile?.role==='manager'}
-function showLogin(msg=''){ $('login').classList.remove('hidden');$('app').classList.add('hidden');$('loginMsg').textContent=msg}
-function showApp(){ $('login').classList.add('hidden');$('app').classList.remove('hidden');$('welcome').textContent=(profile?.full_name||user.email)+' · '+(canManage()?'Responsable':'Agent');$('rolePill').textContent=canManage()?'ESPACE RESPONSABLE':'ESPACE AGENT';renderNav();loadAll().then(render)}
-async function init(){if(!configured){showLogin('Configuration requise : ouvrez index.html et remplacez les deux valeurs Supabase dans le bloc CONFIGURATION.');return}sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);const {data}=await sb.auth.getSession();if(data.session){user=data.session.user;await loadProfile();if(profile)showApp();else showLogin('Compte créé. Un responsable doit attribuer votre rôle dans Supabase.')}else showLogin();sb.auth.onAuthStateChange(async(_e,s)=>{if(s?.user){user=s.user;await loadProfile();if(profile)showApp()}else{user=null;profile=null;showLogin()}})}
-async function loadProfile(){const {data,error}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();if(error){console.error(error);profile=null;return}profile=data}
-$('loginForm').addEventListener('submit',async e=>{e.preventDefault();if(!configured)return showLogin('Ajoutez d’abord URL et clé publique Supabase dans le code.');const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)$('loginMsg').textContent=error.message});
-$('signupBtn').addEventListener('click',async()=>{if(!configured)return showLogin('Ajoutez d’abord URL et clé publique Supabase dans le code.');const email=$('email').value.trim(),password=$('password').value;if(!email||password.length<6)return $('loginMsg').textContent='Saisissez un e-mail et un mot de passe de 6 caractères minimum.';const {error}=await sb.auth.signUp({email,password,options:{data:{full_name:email.split('@')[0]}}});$('loginMsg').textContent=error?error.message:'Compte créé. Vérifiez votre e-mail si la confirmation est activée, puis demandez au responsable de vous attribuer un rôle.'});
-$('logout').onclick=async()=>{if(sb)await sb.auth.signOut()};
-async function loadAll(){if(!sb||!profile)return;const tables=['agents','sites','shifts','time_entries','invoices'];for(const t of tables){const {data,error}=await sb.from(t).select('*').order('created_at',{ascending:false}).limit(500);cache[t]=error?[]:(data||[]);if(error)console.warn(t,error.message)}}
-function renderNav(){const make=target=>navItems.filter(n=>canManage()||!['agents','sites','factures'].includes(n[0])).map(n=>`<button data-go="${n[0]}" class="${section===n[0]?'active':''}"><b>${n[1]}</b>${n[2]}</button>`).join('');$('topnav').innerHTML=make();$('bottomnav').innerHTML=make();document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{section=b.dataset.go;renderNav();render()})}
-function metric(label,val,sub=''){return `<div class="card"><div class="metriclabel">${label}</div><div class="metric">${val}</div><div class="tiny">${sub}</div></div>`}
-function heading(title,sub,action=''){return `<div class="sectionhead"><div><h1>${title}</h1><div class="muted tiny">${sub}</div></div>${action}</div>`}
-function btn(label,action,cls=''){return `<button class="${cls}" data-action="${action}">${label}</button>`}
-function render(){if(!profile)return;renderNav();const v=$('view');if(section==='dashboard')v.innerHTML=dashboard();else if(section==='planning')v.innerHTML=planning();else if(section==='pointage')v.innerHTML=pointage();else if(section==='agents')v.innerHTML=agents();else if(section==='sites')v.innerHTML=sites();else if(section==='factures')v.innerHTML=invoices();else v.innerHTML=assistant();wireActions()}
-function dashboard(){const today=new Date().toISOString().slice(0,10),todayShifts=cache.shifts.filter(s=>s.shift_date===today),open=cache.invoices.filter(i=>!['payee','paid'].includes((i.status||'').toLowerCase())),uncovered=todayShifts.filter(s=>!s.agent_id).length,total=cache.invoices.reduce((a,i)=>a+Number(i.total_ttc||0),0);return `${heading('Tableau de bord','Vue opérationnelle · '+dateFr(today),btn('＋ Nouvelle vacation','add-shift'))}<div class="grid">${metric('Vacations aujourd’hui',todayShifts.length,'Toutes les affectations')}${metric('Vacations à couvrir',uncovered,uncovered?'À traiter rapidement':'Aucune vacation sans agent')}${metric('Agents enregistrés',cache.agents.length,'Base agents')}${metric('Factures à suivre',open.length,money(open.reduce((a,i)=>a+Number(i.total_ttc||0),0))+' en attente')}</div><div class="two section"><div class="card"><div class="sectionhead"><h2>Prochaines vacations</h2>${btn('Voir planning','go-planning','secondary')}</div>${cache.shifts.slice(0,5).map(s=>`<div class="row" style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="grow"><strong>${esc(s.title||'Vacation')}</strong><div class="tiny">${dateFr(s.shift_date)} · ${esc(s.start_time||'')}–${esc(s.end_time||'')}</div></div><span class="pill ${s.agent_id?'green':'red'}">${s.agent_id?'Affectée':'À couvrir'}</span></div>`).join('')||'<div class="empty">Aucune vacation enregistrée.</div>'}</div><div class="card"><h2>Centre d’alertes</h2><div class="callout">${uncovered?uncovered+' vacation(s) sans agent aujourd’hui.':'Aucune vacation sans agent aujourd’hui.'}</div><p style="margin-top:12px" class="tiny">Les indicateurs reflètent les données réellement enregistrées dans Supabase.</p>${btn('Ouvrir l’assistant','go-assistant','secondary')}</div></div><div class="section card"><h2>Raccourcis</h2><div class="actions">${btn('＋ Ajouter un agent','add-agent')}${btn('＋ Ajouter un site','add-site','secondary')}${btn('＋ Créer une facture','add-invoice','secondary')}${btn('Exporter les vacations CSV','export-csv','secondary')}</div></div>`}
-function planning(){return `${heading('Planning des vacations','Affectation des agents par site et par horaire',canManage()?btn('＋ Nouvelle vacation','add-shift'):'')}<div class="card tablewrap"><table><thead><tr><th>Date</th><th>Vacation</th><th>Site</th><th>Horaires</th><th>Agent</th><th>Statut</th>${canManage()?'<th></th>':''}</tr></thead><tbody>${cache.shifts.map(s=>`<tr><td>${dateFr(s.shift_date)}</td><td><strong>${esc(s.title||'Vacation')}</strong></td><td>${esc(cache.sites.find(x=>x.id===s.site_id)?.name||'—')}</td><td>${esc(s.start_time||'')}–${esc(s.end_time||'')}</td><td>${esc(cache.agents.find(x=>x.id===s.agent_id)?.full_name||'Non affecté')}</td><td><span class="pill ${s.agent_id?'green':'red'}">${s.agent_id?'Affectée':'À couvrir'}</span></td>${canManage()?`<td><button class="secondary" data-edit-shift="${s.id}">Modifier</button></td>`:''}</tr>`).join('')||'<tr><td colspan="7">Aucune vacation. Ajoutez votre première vacation.</td></tr>'}</tbody></table></div>`}
-function pointage(){const ownAgent=cache.agents.find(a=>a.profile_id===user.id);const rows=cache.time_entries.filter(t=>canManage()||t.agent_id===ownAgent?.id);return `${heading('Pointage','Heures d’arrivée et de départ, avec historique')}<div class="grid">${metric('Pointages enregistrés',rows.length,'Historique disponible')}${metric('En cours',rows.filter(t=>!t.clock_out).length,'Départ non enregistré')}${metric('Heures déclarées',rows.reduce((n,t)=>n+duration(t.clock_in,t.clock_out),0).toFixed(1)+' h','Calcul indicatif')}${metric('Votre profil',ownAgent?'Agent lié':'À associer','Demandez au responsable si nécessaire')}</div><div class="section card"><h2>Enregistrer un pointage</h2><form id="punchForm"><div class="formgrid"><label>Vacation<select id="punchShift" required><option value="">Choisir une vacation</option>${cache.shifts.filter(s=>canManage()||s.agent_id===ownAgent?.id).map(s=>`<option value="${s.id}">${esc(s.title||'Vacation')} · ${dateFr(s.shift_date)}</option>`).join('')}</select></label><label>Action<select id="punchType"><option value="in">Arrivée</option><option value="out">Départ</option></select></label></div><button>Enregistrer le pointage</button></form><p class="tiny" style="margin-top:10px">Pour un agent, le pointage est limité à son propre profil. Les horaires peuvent nécessiter validation par le responsable.</p></div><div class="section card tablewrap"><h2>Historique</h2><table><thead><tr><th>Agent</th><th>Vacation</th><th>Arrivée</th><th>Départ</th><th>Durée</th></tr></thead><tbody>${rows.map(t=>`<tr><td>${esc(cache.agents.find(a=>a.id===t.agent_id)?.full_name||'Agent')}</td><td>${esc(cache.shifts.find(s=>s.id===t.shift_id)?.title||'Vacation')}</td><td>${esc(t.clock_in||'—')}</td><td>${esc(t.clock_out||'—')}</td><td>${duration(t.clock_in,t.clock_out).toFixed(2)} h</td></tr>`).join('')||'<tr><td colspan="5">Aucun pointage.</td></tr>'}</tbody></table></div>`}
-function duration(a,b){if(!a||!b)return 0;const x=new Date(a).getTime(),y=new Date(b).getTime();return Math.max(0,(y-x)/3600000)}
-function agents(){return `${heading('Agents','Profils, qualifications et suivi des cartes professionnelles',btn('＋ Ajouter un agent','add-agent'))}<div class="grid">${metric('Total agents',cache.agents.length,'')}${metric('APS',cache.agents.filter(a=>(a.qualifications||[]).includes('APS')).length,'Qualification déclarée')}${metric('SSIAP',cache.agents.filter(a=>(a.qualifications||[]).some(q=>q.startsWith('SSIAP'))).length,'Qualification déclarée')}${metric('SST',cache.agents.filter(a=>(a.qualifications||[]).includes('SST')).length,'Qualification déclarée')}</div><div class="section card tablewrap"><table><thead><tr><th>Agent</th><th>E-mail</th><th>Qualifications</th><th>Carte pro expire</th></tr></thead><tbody>${cache.agents.map(a=>`<tr><td><strong>${esc(a.full_name)}</strong></td><td>${esc(a.email||'—')}</td><td>${esc((a.qualifications||[]).join(', ')||'—')}</td><td>${dateFr(a.card_expiry)}</td></tr>`).join('')||'<tr><td colspan="4">Aucun agent enregistré.</td></tr>'}</tbody></table></div>`}
-function sites(){return `${heading('Sites clients','Sites de prestation, coordonnées et tarifs',btn('＋ Ajouter un site','add-site'))}<div class="grid">${metric('Sites actifs',cache.sites.filter(s=>s.active!==false).length,'')}${metric('Tous les sites',cache.sites.length,'')}${metric('Vacations liées',cache.shifts.filter(s=>s.site_id).length,'')}${metric('Clients',new Set(cache.sites.map(s=>s.client_name).filter(Boolean)).size,'Clients distincts')}</div><div class="section card tablewrap"><table><thead><tr><th>Site</th><th>Client</th><th>Adresse</th><th>Tarif horaire HT</th><th>Statut</th></tr></thead><tbody>${cache.sites.map(s=>`<tr><td><strong>${esc(s.name)}</strong></td><td>${esc(s.client_name||'—')}</td><td>${esc(s.address||'—')}</td><td>${money(s.hourly_rate)}</td><td><span class="pill ${s.active===false?'red':'green'}">${s.active===false?'Inactif':'Actif'}</span></td></tr>`).join('')||'<tr><td colspan="5">Aucun site enregistré.</td></tr>'}</tbody></table></div>`}
-function invoices(){return `${heading('Facturation','Devis à préparer, factures et suivi des paiements',btn('＋ Nouvelle facture','add-invoice'))}<div class="grid">${metric('Factures',cache.invoices.length,'')}${metric('Montant total',money(cache.invoices.reduce((n,i)=>n+Number(i.total_ttc||0),0)),'TTC')}${metric('En attente',cache.invoices.filter(i=>!['payee','paid'].includes((i.status||'').toLowerCase())).length,'À relancer')}${metric('Payées',cache.invoices.filter(i=>['payee','paid'].includes((i.status||'').toLowerCase())).length,'') }</div><div class="section card tablewrap"><table><thead><tr><th>Numéro</th><th>Client</th><th>Émise le</th><th>Échéance</th><th>Total TTC</th><th>Statut</th><th></th></tr></thead><tbody>${cache.invoices.map(i=>`<tr><td><strong>${esc(i.invoice_number)}</strong></td><td>${esc(i.client_name)}</td><td>${dateFr(i.issue_date)}</td><td>${dateFr(i.due_date)}</td><td>${money(i.total_ttc)}</td><td><span class="pill ${['payee','paid'].includes((i.status||'').toLowerCase())?'green':'amber'}">${esc(i.status||'Brouillon')}</span></td><td><button class="secondary" data-invoice="${i.id}">Imprimer</button></td></tr>`).join('')||'<tr><td colspan="7">Aucune facture.</td></tr>'}</tbody></table></div><p class="tiny section">Vérifiez les mentions légales, la TVA, la numérotation et les obligations de facturation électronique applicables avant utilisation commerciale. L’impression proposée est un modèle simple.</p>`}
-function assistant(){const uncovered=cache.shifts.filter(s=>!s.agent_id),today=new Date().toISOString().slice(0,10),expired=cache.agents.filter(a=>a.card_expiry&&a.card_expiry<today),due=cache.invoices.filter(i=>!['payee','paid'].includes((i.status||'').toLowerCase()));return `${heading('Assistant de pilotage','Analyse automatique locale — sans API IA payante')}<div class="card"><h2>Rapport opérationnel</h2><p class="muted">L’assistant analyse les données chargées depuis Supabase dans votre navigateur. Aucun texte n’est envoyé à un service d’IA externe.</p><div class="callout">${uncovered.length} vacation(s) sans agent affecté.</div><p style="margin-top:10px">${expired.length} carte(s) professionnelle(s) dont la date d’expiration est dépassée.</p><p>${due.length} facture(s) non marquée(s) comme payée(s), pour ${money(due.reduce((n,i)=>n+Number(i.total_ttc||0),0))}.</p><p>${cache.shifts.filter(s=>s.shift_date>=today).length} vacation(s) à venir ou aujourd’hui.</p><button id="reportBtn">Générer un rapport texte</button><textarea id="reportText" rows="8" placeholder="Le rapport apparaîtra ici…" style="margin-top:12px"></textarea><button class="secondary" id="copyReport">Copier le rapport</button></div><div class="section card"><h2>Commandes en langage naturel (préparation)</h2><p class="tiny">Exemples de demandes à ajouter dans une future version avec un modèle IA : « Trouve les vacations non couvertes cette semaine », « Prépare les factures du mois », « Quels agents ont une carte qui expire bientôt ? ».</p><p class="tiny">Cette version évite les coûts d’API : les alertes et le rapport sont calculés localement, sans prétendre être un modèle génératif.</p></div>`}
-function wireActions(){document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>act(b.dataset.action));document.querySelectorAll('[data-edit-shift]').forEach(b=>b.onclick=()=>editShift(b.dataset.editShift));document.querySelectorAll('[data-invoice]').forEach(b=>b.onclick=()=>printInvoice(b.dataset.invoice));const pf=$('punchForm');if(pf)pf.onsubmit=doPunch;const rb=$('reportBtn');if(rb)rb.onclick=()=>{$('reportText').value=makeReport()};const cr=$('copyReport');if(cr)cr.onclick=async()=>{try{await navigator.clipboard.writeText($('reportText').value);toast('Rapport copié')}catch(e){$('reportText').focus();$('reportText').select();toast('Sélectionnez puis copiez le texte')}}}
-async function save(table,payload){const {error}=await sb.from(table).insert(payload);if(error){toast('Erreur : '+error.message);return false}await loadAll();render();toast('Enregistré');return true}
-function modal(title,fields,submitLabel,handler){const old=document.getElementById('modal');if(old)old.remove();const el=document.createElement('div');el.id='modal';el.style='position:fixed;inset:0;background:#000b;z-index:20;display:grid;place-items:center;padding:14px';el.innerHTML=`<div class="card" style="width:min(600px,100%);max-height:90vh;overflow:auto"><div class="sectionhead"><h2>${title}</h2><button class="secondary" id="closeModal">Fermer</button></div><form id="modalForm"><div class="formgrid">${fields}</div><div class="actions"><button>${submitLabel}</button></div></form></div>`;document.body.append(el);$('closeModal').onclick=()=>el.remove();$('modalForm').onsubmit=async e=>{e.preventDefault();const fd=new FormData(e.target);const data=Object.fromEntries(fd.entries());await handler(data);el.remove()}}
-const field=(name,label,type='text',required=true,extra='')=>`<label>${label}<input name="${name}" type="${type}" ${required?'required':''} ${extra}></label>`;
-function act(a){if(a==='go-planning'){section='planning';render();return}if(a==='go-assistant'){section='assistant';render();return}if(a==='export-csv'){const rows=[['Date','Vacation','Site','Agent','Début','Fin'],...cache.shifts.map(s=>[s.shift_date,s.title,cache.sites.find(x=>x.id===s.site_id)?.name,cache.agents.find(x=>x.id===s.agent_id)?.full_name,s.start_time,s.end_time])];const csv=rows.map(r=>r.map(x=>'"'+String(x||'').replace(/"/g,'""')+'"').join(';')).join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='vigentra-vacations.csv';link.click();URL.revokeObjectURL(url);return}if(!canManage()&&['add-shift','add-agent','add-site','add-invoice'].includes(a)){toast('Action réservée au responsable');return}
-if(a==='add-agent')modal('Nouvel agent',field('full_name','Nom complet')+field('email','E-mail','email',false)+`<label>Qualifications<select name="qualifications"><option>APS</option><option>SSIAP 1</option><option>SSIAP 2</option><option>SSIAP 3</option><option>SST</option></select></label>`+field('card_expiry','Expiration carte professionnelle','date',false),'Créer',d=>save('agents',{full_name:d.full_name,email:d.email||null,qualifications:[d.qualifications],card_expiry:d.card_expiry||null}));
-if(a==='add-site')modal('Nouveau site',field('name','Nom du site')+field('client_name','Nom du client')+field('address','Adresse', 'text',false)+field('hourly_rate','Tarif horaire HT (€)','number',false,'step="0.01"'),'Créer',d=>save('sites',{name:d.name,client_name:d.client_name||null,address:d.address||null,hourly_rate:Number(d.hourly_rate||0),active:true}));
-if(a==='add-shift')modal('Nouvelle vacation',field('title','Intitulé')+field('shift_date','Date','date')+`<label>Site<select name="site_id" required><option value="">Choisir</option>${cache.sites.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></label><label>Agent<select name="agent_id"><option value="">Non affecté</option>${cache.agents.map(a=>`<option value="${a.id}">${esc(a.full_name)}</option>`).join('')}</select></label>`+field('start_time','Heure de début','time')+field('end_time','Heure de fin','time'),'Enregistrer',d=>save('shifts',{title:d.title,shift_date:d.shift_date,site_id:d.site_id,agent_id:d.agent_id||null,start_time:d.start_time,end_time:d.end_time,created_by:user.id}));
-if(a==='add-invoice')modal('Nouvelle facture',field('invoice_number','Numéro de facture')+field('client_name','Client')+field('issue_date','Date d’émission','date')+field('due_date','Date d’échéance','date')+field('total_ttc','Total TTC (€)','number',true,'step="0.01"')+`<label>Statut<select name="status"><option>Brouillon</option><option>Envoyée</option><option>En attente</option><option>Payée</option></select></label>`,'Créer',d=>save('invoices',{invoice_number:d.invoice_number,client_name:d.client_name,issue_date:d.issue_date,due_date:d.due_date,total_ttc:Number(d.total_ttc),status:d.status,created_by:user.id}));
-}
-async function editShift(id){const s=cache.shifts.find(x=>x.id===id);if(!s)return;modal('Modifier l’affectation',`<label>Agent<select name="agent_id"><option value="">Non affecté</option>${cache.agents.map(a=>`<option value="${a.id}" ${a.id===s.agent_id?'selected':''}>${esc(a.full_name)}</option>`).join('')}</select></label>`+`<label>Statut<select name="status"><option ${s.status==='planifiee'?'selected':''}>planifiee</option><option ${s.status==='confirmee'?'selected':''}>confirmee</option><option ${s.status==='terminee'?'selected':''}>terminee</option></select></label>`,'Enregistrer',async d=>{const {error}=await sb.from('shifts').update({agent_id:d.agent_id||null,status:d.status}).eq('id',id);if(error)toast(error.message);else{await loadAll();render();toast('Vacation modifiée')}})}
-async function doPunch(e){e.preventDefault();const shiftId=$('punchShift').value,type=$('punchType').value,shift=cache.shifts.find(s=>s.id===shiftId);if(!shift)return toast('Choisissez une vacation');const agent=cache.agents.find(a=>a.profile_id===user.id);if(!canManage()&&!agent)return toast('Votre compte doit être lié à un agent par le responsable.');const agentId=canManage()?(shift.agent_id||agent?.id):agent.id;if(!agentId)return toast('Aucun agent lié à cette vacation.');if(type==='in'){await save('time_entries',{shift_id:shiftId,agent_id:agentId,clock_in:new Date().toISOString(),created_by:user.id})}else{const entry=cache.time_entries.find(t=>t.shift_id===shiftId&&t.agent_id===agentId&&!t.clock_out);if(!entry)return toast('Aucun pointage d’arrivée ouvert pour cette vacation.');const {error}=await sb.from('time_entries').update({clock_out:new Date().toISOString()}).eq('id',entry.id);if(error)toast(error.message);else{await loadAll();render();toast('Départ enregistré')}}}
-function makeReport(){const today=new Date().toISOString().slice(0,10),uncovered=cache.shifts.filter(s=>!s.agent_id),expired=cache.agents.filter(a=>a.card_expiry&&a.card_expiry<today),due=cache.invoices.filter(i=>!['payee','paid'].includes((i.status||'').toLowerCase()));return `VIGENTRA PRO — RAPPORT OPÉRATIONNEL\nDate : ${dateFr(today)}\n\nVACATIONS\nTotal : ${cache.shifts.length}\nSans agent : ${uncovered.length}${uncovered.map(s=>'\n- '+s.title+' / '+dateFr(s.shift_date)).join('')}\n\nAGENTS\nTotal : ${cache.agents.length}\nCartes expirées : ${expired.length}${expired.map(a=>'\n- '+a.full_name+' / '+dateFr(a.card_expiry)).join('')}\n\nFACTURATION\nFactures non marquées payées : ${due.length}\nMontant correspondant : ${money(due.reduce((n,i)=>n+Number(i.total_ttc||0),0))}\n\nRapport indicatif à vérifier par le responsable.`}
-function printInvoice(id){const i=cache.invoices.find(x=>x.id===id);if(!i)return;const w=window.open('','_blank');if(!w)return toast('Autorisez les fenêtres contextuelles pour imprimer');w.document.write(`<html lang="fr"><meta charset="utf-8"><title>${esc(i.invoice_number)}</title><style>body{font:16px Arial;margin:50px;color:#172033}h1{color:#172c52}hr{margin:30px 0}footer{margin-top:80px;color:#666;font-size:12px}</style><h1>VIGENTRA PRO</h1><p>Facture : <b>${esc(i.invoice_number)}</b></p><p>Client : ${esc(i.client_name)}</p><p>Date : ${dateFr(i.issue_date)} · Échéance : ${dateFr(i.due_date)}</p><hr><h2>Total TTC : ${money(i.total_ttc)}</h2><p>Statut : ${esc(i.status)}</p><footer>Modèle de prévisualisation — compléter les mentions légales et la ventilation TVA avant émission officielle.</footer><script>window.onload=()=>window.print()<\/script></html>`);w.document.close()}
-init();
+(() => {
+  let db = null;
+  let busy = false;
+
+  const $ = id => document.getElementById(id);
+  const status = message => { $("status").textContent = message; };
+
+  function showError(error) {
+    console.error(error);
+    status("Erreur : " + (error?.message || String(error)));
+  }
+
+  function validConfig(url, key) {
+    return /^https:\/\/[a-zA-Z0-9-]+\.supabase\.co\/?$/.test(url)
+      && key.length > 20;
+  }
+
+  async function connect() {
+    const url = $("configUrl").value.trim().replace(/\/$/, "");
+    const key = $("configKey").value.trim();
+
+    if (!validConfig(url, key)) {
+      status("Vérifie l'URL Supabase et la clé publique.");
+      return;
+    }
+
+    db = window.supabase.createClient(url, key);
+    status("Supabase configuré. Connecte-toi à ton compte.");
+  }
+
+  async function login(createAccount = false) {
+    if (!db) await connect();
+    if (!db) return;
+
+    const email = $("loginEmail").value.trim();
+    const password = $("loginPassword").value;
+
+    if (!email || password.length < 6) {
+      status("Entre ton e-mail et un mot de passe d'au moins 6 caractères.");
+      return;
+    }
+
+    try {
+      const result = createAccount
+        ? await db.auth.signUp({ email, password })
+        : await db.auth.signInWithPassword({ email, password });
+
+      if (result.error) throw result.error;
+
+      if (createAccount && !result.data.session) {
+        status("Compte créé. Vérifie ton e-mail si Supabase le demande.");
+        return;
+      }
+
+      status("Connexion réussie.");
+      await loadApp();
+    } catch (error) {
+      showError(error);
+    }
+  }
+
+  async function requireUser() {
+    if (!db) throw new Error("Configure d'abord Supabase.");
+    const { data, error } = await db.auth.getUser();
+    if (error) throw error;
+    if (!data.user) throw new Error("Connecte-toi avant cette opération.");
+    return data.user;
+  }
+
+  async function loadApp() {
+    try {
+      await requireUser();
+      $("loginCard").classList.add("hidden");
+      $("app").classList.remove("hidden");
+      await refreshData();
+    } catch (error) {
+      showError(error);
+    }
+  }
+
+  async function refreshData() {
+    try {
+      const user = await requireUser();
+
+      const [agentsResult, sitesResult] = await Promise.all([
+        db.from("agents").select("*").eq("user_id", user.id).order("full_name"),
+        db.from("sites").select("*").eq("user_id", user.id).order("name")
+      ]);
+
+      if (agentsResult.error) throw agentsResult.error;
+      if (sitesResult.error) throw sitesResult.error;
+
+      $("agentCount").textContent = agentsResult.data.length;
+      $("siteCount").textContent = sitesResult.data.length;
+
+      $("agentsList").replaceChildren();
+      agentsResult.data.forEach(agent => {
+        const item = document.createElement("div");
+        item.className = "item";
+        item.textContent = [
+          agent.full_name,
+          agent.email,
+          agent.phone
+        ].filter(Boolean).join(" — ");
+        $("agentsList").appendChild(item);
+      });
+
+      $("sitesList").replaceChildren();
+      sitesResult.data.forEach(site => {
+        const item = document.createElement("div");
+        item.className = "item";
+        item.textContent = site.name;
+        $("sitesList").appendChild(item);
+      });
+
+      status("VIGENTRA PRO connecté à Supabase.");
+    } catch (error) {
+      showError(error);
+    }
+  }
+
+  async function addAgent() {
+    if (busy) return;
+    const full_name = $("agentName").value.trim();
+    if (!full_name) {
+      status("Entre le nom et prénom de l'agent.");
+      return;
+    }
+
+    busy = true;
+    try {
+      const user = await requireUser();
+      const agent = {
+        user_id: user.id,
+        full_name,
+        email: $("agentEmail").value.trim() || null,
+        phone: $("agentPhone").value.trim() || null
+      };
+
+      const { error } = await db.from("agents").insert(agent);
+      if (error) throw error;
+
+      $("agentName").value = "";
+      $("agentEmail").value = "";
+      $("agentPhone").value = "";
+      status("Agent enregistré.");
+      await refreshData();
+    } catch (error) {
+      showError(error);
+    } finally {
+      busy = false;
+    }
+  }
+
+  async function addSite() {
+    if (busy) return;
+    const name = $("siteName").value.trim();
+    if (!name) {
+      status("Entre le nom du site client.");
+      return;
+    }
+
+    busy = true;
+    try {
+      const user = await requireUser();
+      const { error } = await db.from("sites").insert({
+        user_id: user.id,
+        name
+      });
+      if (error) throw error;
+
+      $("siteName").value = "";
+      status("Site client enregistré.");
+      await refreshData();
+    } catch (error) {
+      showError(error);
+    } finally {
+      busy = false;
+    }
+  }
+
+  $("connectBtn").addEventListener("click", connect);
+  $("loginBtn").addEventListener("click", () => login(false));
+  $("signupBtn").addEventListener("click", () => login(true));
+  $("addAgentBtn").addEventListener("click", addAgent);
+  $("addSiteBtn").addEventListener("click", addSite);
+  $("refreshBtn").addEventListener("click", refreshData);
+  $("logoutBtn").addEventListener("click", async () => {
+    try {
+      const { error } = await db.auth.signOut();
+      if (error) throw error;
+      $("app").classList.add("hidden");
+      $("loginCard").classList.remove("hidden");
+      status("Déconnecté.");
+    } catch (error) {
+      showError(error);
+    }
+  });
+
+  $("configUrl").value = "";
+  $("configKey").value = "";
+
+  status("Entre l'URL et la clé publique de Supabase.");
+})();
 </script>
-</body></html>
+</body>
+</html>
