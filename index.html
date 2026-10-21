@@ -8,37 +8,92 @@
   <title>VIGENTRA PRO</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; padding: 20px;
-      font-family: Arial, sans-serif;
-      background: #101827; color: #fff;
+    :root {
+      color-scheme: dark;
+      --bg: #080d18;
+      --panel: #111a2b;
+      --panel-2: #0c1423;
+      --line: rgba(148,163,184,.16);
+      --text: #f4f7fc;
+      --muted: #9aa9bf;
+      --blue: #4f8cff;
+      --red: #ef4444;
+      --gold: #d7b778;
     }
-    header { margin-bottom: 24px; }
-    h1 { color: #60a5fa; margin-bottom: 5px; }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--bg); }
+    body {
+      min-height: 100vh; margin: 0; padding: 24px 16px 40px;
+      max-width: 980px; margin-inline: auto;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse at 12% 0%, rgba(37,99,235,.17), transparent 38%),
+        radial-gradient(ellipse at 100% 18%, rgba(239,68,68,.08), transparent 30%),
+        var(--bg);
+      color: var(--text); letter-spacing: .01em;
+    }
+    header {
+      position: relative; padding: 24px 22px 20px; margin-bottom: 20px;
+      border: 1px solid var(--line); border-radius: 22px;
+      background: linear-gradient(135deg, rgba(20,32,52,.98), rgba(10,16,29,.96));
+      box-shadow: 0 18px 50px rgba(0,0,0,.22); overflow: hidden;
+    }
+    header::after {
+      content: ""; position: absolute; right: -38px; top: -72px;
+      width: 190px; height: 190px; border: 1px solid rgba(215,183,120,.24);
+      border-radius: 50%; box-shadow: 0 0 0 18px rgba(215,183,120,.035), 0 0 0 38px rgba(215,183,120,.025);
+      pointer-events: none;
+    }
+    h1 { margin: 0 0 8px; color: #f6f8ff; font-size: clamp(27px, 6vw, 38px); letter-spacing: .12em; font-weight: 850; }
+    header div { color: #c5d1e2; font-size: 14px; }
+    h2 { margin: 0 0 16px; font-size: 17px; letter-spacing: .01em; }
+    p { color: #c6d1e1; line-height: 1.5; }
     .card {
-      background: #1e293b; padding: 18px;
-      border-radius: 14px; margin-bottom: 18px;
+      position: relative; background: linear-gradient(145deg, rgba(19,29,47,.98), rgba(13,21,35,.98));
+      border: 1px solid var(--line); padding: 21px; border-radius: 19px; margin-bottom: 16px;
+      box-shadow: 0 12px 34px rgba(0,0,0,.16);
     }
     input, button {
-      width: 100%; padding: 13px; margin-top: 10px;
-      border-radius: 8px; border: 1px solid #475569;
-      font-size: 16px;
+      display: block; width: 100%; min-height: 49px; padding: 13px 15px; margin-top: 11px;
+      border-radius: 11px; border: 1px solid rgba(148,163,184,.23);
+      font: inherit; font-size: 15px; transition: border-color .18s, background .18s, transform .18s;
     }
-    input { background: #0f172a; color: white; }
+    input { background: #091221; color: var(--text); outline: none; }
+    input::placeholder { color: #74839a; }
+    input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(79,140,255,.13); }
     button {
-      background: #2563eb; color: white;
-      border: none; font-weight: bold; cursor: pointer;
+      background: linear-gradient(135deg, #3478f6, #2456c8); color: white;
+      border: 1px solid rgba(147,184,255,.24); font-weight: 750; cursor: pointer;
+      box-shadow: 0 7px 18px rgba(37,99,235,.18);
     }
-    button.danger { background: #b91c1c; }
-    .status { color: #93c5fd; overflow-wrap: anywhere; }
+    button:hover { filter: brightness(1.08); }
+    button:active { transform: scale(.99); }
+    button.danger { background: linear-gradient(135deg, #e44752, #a91f31); box-shadow: 0 7px 18px rgba(185,28,28,.16); }
+    .status {
+      position: relative; z-index: 1; margin: 17px 0 0; padding: 11px 13px;
+      border-radius: 10px; border: 1px solid rgba(79,140,255,.2);
+      background: rgba(37,99,235,.08); color: #a9caff; font-size: 13px; overflow-wrap: anywhere;
+    }
     .item {
-      padding: 12px; background: #0f172a;
-      margin-top: 8px; border-radius: 8px;
-      overflow-wrap: anywhere;
+      padding: 14px; background: linear-gradient(135deg, #0b1423, #101b2d);
+      border: 1px solid var(--line); margin-top: 9px; border-radius: 12px;
+      overflow-wrap: anywhere; color: #e8eef8; line-height: 1.5;
     }
-    .hidden { display: none; }
-    small { color: #cbd5e1; }
+    #agentCount, #siteCount { color: var(--gold); font-size: 23px; }
+    hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
+    .hidden { display: none !important; }
+    small { color: var(--muted); }
+    @media (min-width: 700px) {
+      body { padding: 36px 24px 54px; }
+      #app { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+      #app > .card:first-child { grid-column: 1 / -1; }
+      .card { padding: 24px; }
+    }
+    @media (max-width: 420px) {
+      body { padding: 14px 12px 30px; }
+      header { padding: 21px 17px 17px; border-radius: 18px; }
+      .card { padding: 17px; border-radius: 16px; }
+    }
   </style>
 </head>
 <body>
