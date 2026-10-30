@@ -227,8 +227,8 @@
       const user = await requireUser();
 
       const [agentsResult, sitesResult] = await Promise.all([
-        db.from("agents").select("*").eq("user_id", user.id).order("full_name"),
-        db.from("sites").select("*").eq("user_id", user.id).order("name")
+        db.from("agents").select("*").eq("user_id", user.id).order("nom"),
+        db.from("Site").select("*").eq("user_id", user.id).order("Nom")
       ]);
 
       if (agentsResult.error) throw agentsResult.error;
@@ -242,9 +242,9 @@
         const item = document.createElement("div");
         item.className = "item";
         item.textContent = [
-          agent.full_name,
-          agent.email,
-          agent.phone
+          [agent.Prenom, agent.nom].filter(Boolean).join(" "),
+          agent.Email,
+          agent["Téléphone"]
         ].filter(Boolean).join(" — ");
         $("agentsList").appendChild(item);
       });
@@ -253,7 +253,7 @@
       sitesResult.data.forEach(site => {
         const item = document.createElement("div");
         item.className = "item";
-        item.textContent = site.name;
+        item.textContent = site.Nom;
         $("sitesList").appendChild(item);
       });
 
@@ -265,8 +265,8 @@
 
   async function addAgent() {
     if (busy) return;
-    const full_name = $("agentName").value.trim();
-    if (!full_name) {
+    const agentName = $("agentName").value.trim();
+    if (!agentName) {
       status("Entre le nom et prénom de l'agent.");
       return;
     }
@@ -276,9 +276,9 @@
       const user = await requireUser();
       const agent = {
         user_id: user.id,
-        full_name,
-        email: $("agentEmail").value.trim() || null,
-        phone: $("agentPhone").value.trim() || null
+        nom: agentName,
+        Email: $("agentEmail").value.trim() || null,
+        "Téléphone": $("agentPhone").value.trim() || null
       };
 
       const { error } = await db.from("agents").insert(agent);
@@ -307,9 +307,9 @@
     busy = true;
     try {
       const user = await requireUser();
-      const { error } = await db.from("sites").insert({
+      const { error } = await db.from("Site").insert({
         user_id: user.id,
-        name
+        Nom: name
       });
       if (error) throw error;
 
