@@ -186,7 +186,7 @@
         <button type="button" data-module="indispo">Indisponibilités</button>
         <button type="button" data-module="rondes">Rondes</button>
         <button type="button" data-module="clients">Clients</button><button type="button" data-module="contrats">Contrats</button><button type="button" data-module="devis">Devis</button><button type="button" data-module="finance">Factures & charges</button>
-        <button type="button" data-module="exports">Exports CSV</button>
+        <button type="button" data-module="exports">Exports CSV</button><button type="button" data-module="equipe">Équipe & accès</button>
       </div><div id="moduleContent"><p class="muted">Choisis un module ci-dessus.</p></div>
     </section>
 </main>
@@ -581,7 +581,15 @@
   async function openModule(n){
     document.querySelectorAll("[data-module]").forEach(b=>b.classList.toggle("active",b.dataset.module===n));
     try {
-      if(n==="journal"){
+      if(n==="equipe"){
+        const u=await requireUser();
+        const {data:members,error}=await db.from("vigentra_company_members").select("owner_user_id,member_email,role,status,created_at").eq("owner_user_id",u.id).order("created_at",{ascending:false});
+        if(error) throw error;
+        const rowsHtml=(members||[]).map(m=>'<div class="item"><b>'+esc(m.member_email)+'</b><p class="muted">Rôle : '+esc(m.role)+' · Statut : '+esc(m.status)+'</p>'+(m.status!=="revoked"?'<button type="button" data-revoke-member="'+esc(m.member_email)+'">Révoquer l’accès</button>':'')+'</div>').join("")||'<p class="muted">Aucune invitation pour cette entreprise.</p>';
+        mc.innerHTML='<h2>Équipe & accès</h2><p class="muted">Invitez un directeur de confiance par son adresse e-mail. Il doit créer/valider son compte VIGENTRA PRO avec cette même adresse. L’accès est limité à cette entreprise, pas aux autres comptes.</p><label for="teamEmail">E-mail du directeur</label><input id="teamEmail" type="email" autocomplete="email" placeholder="directeur@entreprise.fr"><button type="button" id="teamInvite">Envoyer l’invitation</button><h3>Invitations et accès</h3>'+rowsHtml;
+        $("teamInvite").onclick=async()=>{try{const email=$("teamEmail").value.trim().toLowerCase();if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))throw Error("Saisis une adresse e-mail valide.");if(email.toLowerCase()===(u.email||"").toLowerCase())throw Error("Cette adresse correspond déjà au compte connecté.");const {error}=await db.from("vigentra_company_members").insert({owner_user_id:u.id,member_email:email,role:"director",status:"pending",member_user_id:null});if(error){if(error.code==="23505")throw Error("Une invitation existe déjà pour cette adresse.");throw error;}status("Invitation enregistrée. Le directeur devra se connecter avec cette adresse e-mail.");await openModule("equipe");}catch(e){showError(e)}};
+        mc.querySelectorAll("[data-revoke-member]").forEach(b=>b.onclick=async()=>{if(!confirm("Révoquer l’accès de "+b.dataset.revokeMember+" à l’espace partagé ?"))return;try{const {error}=await db.from("vigentra_company_members").update({status:"revoked"}).eq("owner_user_id",u.id).eq("member_email",b.dataset.revokeMember);if(error)throw error;status("Accès révoqué.");await openModule("equipe");}catch(e){showError(e)}});
+      } else if(n==="journal"){
         const [a,s,r]=await Promise.all([rows("agents","nom"),rows("Site","Nom"),rows("main_courante")]);
         mc.innerHTML='<h2>Main courante numérique</h2>'+sel("Type","jt",[{v:"information",l:"Information"},{v:"incident",l:"Incident"},{v:"consigne",l:"Consigne"},{v:"anomalie",l:"Anomalie"}])+inp("Titre","jtitle")+ta("Description","jdesc")+sel("Priorité","jp",[{v:"basse",l:"Basse"},{v:"normale",l:"Normale"},{v:"haute",l:"Haute"},{v:"urgente",l:"Urgente"}])+sel("Agent","ja",[{v:"",l:"Non attribué"},...a.map(x=>({v:x.id,l:[x.Prenom,x.nom].filter(Boolean).join(" ")}))])+sel("Site","js",[{v:"",l:"Non attribué"},...s.map(x=>({v:x.id,l:x.Nom}))])+btn("jbtn","Enregistrer")+'<h3>Historique</h3>'+list(r,x=>'<b>'+esc(x.type)+' · '+esc(x.titre)+'</b><br>'+esc(x.created_at?.slice(0,16).replace("T"," "))+' · '+esc(x.priorite)+'<br>'+esc(x.description));
         $("jbtn").onclick=async()=>{try{if(!$("jtitle").value.trim()||!$("jdesc").value.trim())throw Error("Renseigne le titre et la description.");await save("main_courante",{type:$("jt").value,titre:$("jtitle").value.trim(),description:$("jdesc").value.trim(),priorite:$("jp").value,agent_id:$("ja").value||null,site_id:$("js").value||null},"Main courante enregistrée.");await openModule(n)}catch(e){showError(e)}};
