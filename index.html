@@ -203,6 +203,7 @@
         <button type="button" class="kpi-tile" data-scroll="planningCard"><span class="kpi-icon">▦</span><span class="kpi-label">Vacations chargées</span><strong id="plannedCount">0</strong><span class="kpi-foot">Ouvrir le planning →</span></button>
         <div class="kpi-tile"><span class="kpi-icon">◷</span><span class="kpi-label">Vacations aujourd’hui</span><strong id="todayCount">0</strong><span class="kpi-foot">À surveiller</span></div>
         <button type="button" class="kpi-tile" data-scroll="agentsCard"><span class="kpi-icon">⚠</span><span class="kpi-label">Alertes à traiter</span><strong id="alertCount">0</strong><span class="kpi-foot">Cartes et vacations →</span></button>
+        <button type="button" class="kpi-tile" data-scroll="planningCard"><span class="kpi-icon">!</span><span class="kpi-label">Vacations à compléter</span><strong id="incompleteShiftCount">0</strong><span class="kpi-foot">Affectation agent/site →</span></button>
         <div class="kpi-tile"><span class="kpi-icon">✓</span><span class="kpi-label">Vacations couvertes aujourd’hui</span><strong id="coveredTodayCount">0</strong><span class="kpi-foot">Agent et site affectés</span></div>
       </div>
       <div class="dashboard-lower">
@@ -405,7 +406,10 @@
         const today = new Date(); today.setHours(0,0,0,0);
         return Math.ceil((expiry - today) / 86400000) <= 30;
       }).length;
-      const incompleteShifts = planningResult.data.filter(x => x.date_vacation >= todayKey && (!x.agent_id || !x.site_id)).length;
+      const upcomingShifts = planningResult.data.filter(x => x.date_vacation >= todayKey);
+      const incompleteShifts = upcomingShifts.filter(x => !x.agent_id || !x.site_id).length;
+      const expiredCards = agentsResult.data.filter(a => a.expiration_carte_pro && a.expiration_carte_pro < todayKey).length;
+      $("incompleteShiftCount").textContent = incompleteShifts;
       $("alertCount").textContent = expiryAlerts + incompleteShifts;
       $("siteCount").textContent = sitesResult.data.length;
 
