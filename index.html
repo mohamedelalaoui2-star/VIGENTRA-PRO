@@ -149,8 +149,8 @@
     .brand-sub { color:#d7b778; letter-spacing:.18em; font-size:clamp(9px,2.6vw,13px); font-weight:800; margin-top:8px; }
     .brand-motto { color:#dce3ee; font-size:9px; letter-spacing:.12em; margin-top:10px; }
     .brand-header #installHelpBtn { max-width:360px; margin-top:18px; background:linear-gradient(120deg,#b58b43,#f2d99d,#a47a36); color:#111827; border-color:rgba(255,230,165,.6); box-shadow:0 6px 22px rgba(215,183,120,.12); }
-    .quick-menu { position:sticky; top:5px; z-index:20; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; overflow:visible; padding:8px; margin-bottom:14px; border:1px solid rgba(215,183,120,.24); border-radius:17px; background:rgba(5,10,19,.96); backdrop-filter:blur(16px); box-shadow:0 12px 30px rgba(0,0,0,.28); }
-    .quick-menu button { min-width:0; width:100%; min-height:72px; margin:0; padding:9px 4px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:5px; border:1px solid rgba(215,183,120,.2); border-radius:11px; background:linear-gradient(155deg,#111b2b,#080e18); color:#edf2fa; box-shadow:none; font-size:10px; font-weight:650; line-height:1.2; white-space:normal; overflow-wrap:anywhere; }
+    .quick-menu { position:sticky; top:6px; z-index:50; display:flex; flex-wrap:nowrap; gap:7px; overflow-x:auto; overflow-y:hidden; padding:7px; margin:0 0 14px; border:1px solid rgba(215,183,120,.3); border-radius:15px; background:rgba(5,10,19,.97); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); box-shadow:0 12px 30px rgba(0,0,0,.35); -webkit-overflow-scrolling:touch; scrollbar-width:none; }\n    .quick-menu::-webkit-scrollbar { display:none; }
+    .quick-menu button { flex:0 0 82px; min-width:82px; width:82px; min-height:58px; margin:0; padding:7px 5px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:5px; border:1px solid rgba(215,183,120,.2); border-radius:11px; background:linear-gradient(155deg,#111b2b,#080e18); color:#edf2fa; box-shadow:none; font-size:10px; font-weight:650; line-height:1.2; white-space:normal; overflow-wrap:anywhere; }\n    .quick-menu button::before { content:none !important; display:none !important; }
     .quick-menu .menu-icon { display:block; color:#e7c77e; font-size:25px; line-height:1; font-weight:500; text-shadow:0 0 12px rgba(215,183,120,.2); }
     .quick-menu button.active, .quick-menu button:focus-visible { border-color:#e0444d; background:linear-gradient(150deg,rgba(134,27,39,.8),rgba(30,15,25,.96)); box-shadow:inset 0 0 0 1px rgba(239,68,68,.16),0 0 15px rgba(239,68,68,.12); outline:none; }
     .quick-menu button.active .menu-icon { color:#f2d18b; }
@@ -159,8 +159,8 @@
     button { background:linear-gradient(135deg,#b58b43,#e5c47e,#997031); color:#111827; border-color:rgba(255,226,155,.28); box-shadow:0 6px 16px rgba(215,183,120,.1); }
     button.danger { background:linear-gradient(135deg,#e0444d,#8e1d2c); color:#fff; }
     .status { border-color:rgba(215,183,120,.2); }
-    @media (min-width:760px) { .quick-menu { grid-template-columns:repeat(7,minmax(0,1fr)); } .quick-menu button { min-height:86px; font-size:12px; } .quick-menu .menu-icon { font-size:29px; } .brand-header { padding:25px 28px 20px; } }
-    @media (max-width:360px) { .quick-menu { grid-template-columns:repeat(3,minmax(0,1fr)); } .brand-crest { width:60px;height:68px;flex-basis:60px;font-size:34px; } .brand-motto { letter-spacing:.06em;font-size:8px; } }
+    @media (min-width:760px) { .quick-menu button { flex-basis:104px; min-width:104px; width:104px; min-height:68px; font-size:12px; } .quick-menu .menu-icon { font-size:29px; } .brand-header { padding:25px 28px 20px; } }
+    @media (max-width:360px) { .quick-menu button { flex-basis:76px; min-width:76px; width:76px; } .brand-crest { width:60px;height:68px;flex-basis:60px;font-size:34px; } .brand-motto { letter-spacing:.06em;font-size:8px; } }
 </style>
 </head>
 <body>
