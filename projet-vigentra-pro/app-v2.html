@@ -60,6 +60,10 @@ function fmtDate(v){if(!v)return "—";var d=new Date(v+"T00:00:00");return isNa
 function fmtDateTime(v){if(!v)return "—";var d=new Date(v);return isNaN(d.getTime())?esc(v):d.toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"})}
 function eur(v){return Number(v||0).toLocaleString("fr-FR",{style:"currency",currency:"EUR"})}
 function notify(msg,kind){setStatus("loginStatus",msg,kind||"")}
+function saveConfigFromFields(){var url=$("supabaseUrl").value.trim().replace(/\/+$/,""),key=$("supabaseKey").value.trim();if(/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)&&key.length>=20){try{localStorage.setItem(CONFIG_KEY,JSON.stringify({url:url,key:key}))}catch(e){}}}
+$("supabaseUrl").addEventListener("change",saveConfigFromFields);
+$("supabaseKey").addEventListener("input",saveConfigFromFields);
+$("supabaseKey").addEventListener("change",saveConfigFromFields);
 function formData(form){return Object.fromEntries(new FormData(form).entries())}
 function opts(items,idKey,labelFn,first){var html='<option value="">'+esc(first||"— Aucun —")+'</option>';items.forEach(function(x){html+='<option value="'+esc(x[idKey])+'">'+esc(labelFn(x))+'</option>'});return html}
 function agentName(a){return [a.Prenom,a.nom].filter(Boolean).join(" ")||("Agent #"+a.id)}
