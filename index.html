@@ -90,6 +90,15 @@
     #moduleContent textarea { min-height:80px; }
     #moduleContent label { display:block;margin-top:9px;color:#c5d1e2;font-size:13px; }
     .muted { color:var(--muted); }
+    @media print {
+      body { background:#fff !important;color:#111 !important; }
+      header, nav, .module-nav, button, .no-print, #loginPanel, #status, #error { display:none !important; }
+      main, .card, #moduleContent, .item { display:block !important; width:100% !important; max-width:none !important; background:#fff !important;color:#111 !important;box-shadow:none !important;border:1px solid #ddd !important; }
+      h1,h2,h3,p,div,span,label { color:#111 !important; }
+      input,select,textarea { display:none !important; }
+      .item { margin:8px 0;padding:10px;page-break-inside:avoid; }
+      body:before { content:"VIGENTRA PRO — TEA SÉCURITÉ PRIVÉE";display:block;font-size:20px;font-weight:bold;margin-bottom:16px; }
+    }
     @media(max-width:420px){.module-nav{grid-template-columns:repeat(2,minmax(0,1fr));}}
     small { color: var(--muted); }
     @media (min-width: 700px) {
@@ -519,8 +528,8 @@
         const [a,s,p,f,c,j,cl,ct,dv]=await Promise.all([rows("agents","nom"),rows("Site","Nom"),rows("planning","date_vacation"),rows("factures"),rows("charges_entreprise","date_charge"),rows("main_courante"),rows("clients"),rows("contrats"),rows("devis")]);
         const csv=rs=>{if(!rs.length)return "";const keys=[...new Set(rs.flatMap(x=>Object.keys(x)))];return [keys.join(";"),...rs.map(x=>keys.map(k=>'"'+String(x[k]??"").replace(/"/g,'""')+'"').join(";"))].join("\r\n");};
         const dl=(name,rs)=>{const u=URL.createObjectURL(new Blob(["\ufeff"+csv(rs)],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=u;a.download="vigentra-"+name+".csv";a.click();URL.revokeObjectURL(u)};
-        mc.innerHTML='<h2>Exports CSV</h2><p>Export des 100 derniers enregistrements de chaque module vers Excel ou Numbers.</p>'+btn("ea","Exporter agents")+btn("es","Exporter sites")+btn("ep","Exporter planning")+btn("ef","Exporter factures")+btn("ec","Exporter charges")+btn("ej","Exporter main courante")+btn("ecl","Exporter clients")+btn("ekt","Exporter contrats")+btn("edv","Exporter devis");
-        [["ea","agents",a],["es","sites",s],["ep","planning",p],["ef","factures",f],["ec","charges",c],["ej","main-courante",j],["ecl","clients",cl],["ekt","contrats",ct],["edv","devis",dv]].forEach(([id,name,data])=>$(id).onclick=()=>dl(name,data));
+        mc.innerHTML='<h2>Exports et documents</h2><p>Export des 100 derniers enregistrements de chaque module vers Excel ou Numbers. Le bouton PDF ouvre la fenêtre d’impression de l’iPhone ou de l’ordinateur.</p>'+btn("printPdf","Imprimer / enregistrer en PDF")+btn("ea","Exporter agents")+btn("es","Exporter sites")+btn("ep","Exporter planning")+btn("ef","Exporter factures")+btn("ec","Exporter charges")+btn("ej","Exporter main courante")+btn("ecl","Exporter clients")+btn("ekt","Exporter contrats")+btn("edv","Exporter devis");
+        $("printPdf").onclick=()=>window.print();\n        [["ea","agents",a],["es","sites",s],["ep","planning",p],["ef","factures",f],["ec","charges",c],["ej","main-courante",j],["ecl","clients",cl],["ekt","contrats",ct],["edv","devis",dv]].forEach(([id,name,data])=>$(id).onclick=()=>dl(name,data));
       }
     } catch(e){showError(e);mc.innerHTML='<div class="item">Erreur de chargement : '+esc(e.message)+'</div>';}
   }
