@@ -29,6 +29,7 @@ Télécharger ou ouvrir `maquette.html` dans Safari, Chrome ou sur ordinateur. L
 - Ne pas relier ni déployer la branche de travail sur le domaine de production sans validation explicite.
 - Avant publication, vérifier les variables d'environnement Preview, le projet Supabase cible et les règles RLS avec des comptes de test.
 - Aucun token Vercel ni clé Supabase secrète ne doit être ajouté au dépôt.
+- Aperçu isolé actuel (fichier `app-v2.html` servi comme `index.html`) : https://vigentra-5uh46txjh-mohamedelalaoui2-stars-projects.vercel.app. Cet aperçu n'est pas une validation fonctionnelle et n'a pas d'alias de production.
 
 ## État
 - [x] Dossier projet créé.
