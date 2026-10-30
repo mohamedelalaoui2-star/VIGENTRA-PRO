@@ -246,6 +246,8 @@
         <div><label for="shiftEnd">Fin</label><input id="shiftEnd" type="time" required></div>
       </div>
       <button id="addShiftBtn">Enregistrer la vacation</button>
+      <button type="button" id="smartPlanningBtn" class="secondary">✨ IA planning intelligente — proposer les affectations</button>
+      <div id="smartPlanningResults" aria-live="polite"></div>
       <p>Heures planifiées affichées : <strong id="plannedHours">0 h</strong></p>
       <div id="planningList"></div>
     </section>
@@ -540,6 +542,89 @@
     }
   }
 
+ 
+  async function suggestSmartPlanning() {
+    const output = $("smartPlanningResults");
+    if (busy) return;
+    busy = true;
+    output.replaceChildren();
+    status("Analyse intelligente du planning en cours…");
+    try {
+      const user = await requireUser();
+      const [agentsR, sitesR, shiftsR, unavailableR] = await Promise.all([
+        db.from("agents").select("*").eq("user_id", user.id).order("nom"),
+        db.from("Site").select("*").eq("user_id", user.id).order("Nom"),
+        db.from("planning").select("*").eq("user_id", user.id).order("date_vacation", {ascending:true}),
+        db.from("indisponibilites").select("agent_id,date_debut,date_fin,motif,actif").eq("user_id", user.id).eq("actif", true)
+      ]);
+      for (const r of [agentsR,sitesR,shiftsR,unavailableR]) if (r.error) throw r.error;
+      const agents = agentsR.data || [], sites = sitesR.data || [], shifts = shiftsR.data || [], unavailable = unavailableR.data || [];
+      const today = new Date(); today.setHours(0,0,0,0);
+      const todayKey = [today.getFullYear(),String(today.getMonth()+1).padStart(2,"0"),String(today.getDate()).padStart(2,"0")].join("-");
+      const targets = shifts.filter(s => s.date_vacation >= todayKey && s.site_id && !s.agent_id)
+        .sort((a,b)=>(a.date_vacation+a.heure_debut).localeCompare(b.date_vacation+b.heure_debut));
+      if (!targets.length) {
+        output.textContent = "Aucune vacation future avec un site défini et un agent manquant. Les vacations sans site doivent d’abord être complétées manuellement.";
+        status("Analyse terminée.");
+        return;
+      }
+      const mins = t => { const p=String(t||"0:0").split(":").map(Number); return (p[0]||0)*60+(p[1]||0); };
+      const interval = s => {
+        const start = new Date(s.date_vacation+"T"+String(s.heure_debut||"00:00").slice(0,8));
+        const end = new Date(s.date_vacation+"T"+String(s.heure_fin||"00:00").slice(0,8));
+        if (end<=start) end.setDate(end.getDate()+1);
+        return {start,end,minutes:(end-start)/60000};
+      };
+      const workload = new Map(agents.map(a=>[String(a.id),0]));
+      shifts.filter(s=>s.agent_id).forEach(s=>{const k=String(s.agent_id);if(workload.has(k))workload.set(k,workload.get(k)+shiftDurationMinutes(s.heure_debut,s.heure_fin));});
+      const proposed = [];
+      const conflicts = (agentId, target) => {
+        const a=interval(target);
+        const all=[...shifts.filter(s=>String(s.agent_id)===String(agentId)),...proposed.filter(s=>String(s.agent_id)===String(agentId))];
+        if(all.some(s=>{const b=interval(s);return a.start<b.end && b.start<a.end;})) return "chevauchement horaire";
+        const endKey=[a.end.getFullYear(),String(a.end.getMonth()+1).padStart(2,"0"),String(a.end.getDate()).padStart(2,"0")].join("-");
+        if(unavailable.some(u=>String(u.agent_id)===String(agentId)&&u.date_debut<=endKey&&u.date_fin>=target.date_vacation)) return "indisponibilité déclarée";
+        const agent=agents.find(x=>String(x.id)===String(agentId));
+        if(agent?.expiration_carte_pro && agent.expiration_carte_pro < target.date_vacation) return "carte professionnelle expirée";
+        return "";
+      };
+      const title=document.createElement("h3"); title.textContent="Propositions d’affectation"; output.appendChild(title);
+      const intro=document.createElement("p"); intro.textContent="Suggestions basées sur les conflits horaires, les indisponibilités, l’expiration de la carte professionnelle et l’équilibre des heures. Rien n’est enregistré sans ta confirmation."; output.appendChild(intro);
+      let count=0;
+      for (const shift of targets) {
+        const site=sites.find(s=>String(s.id)===String(shift.site_id));
+        const box=document.createElement("div"); box.className="item";
+        const head=document.createElement("strong"); head.textContent=shift.date_vacation+" · "+String(shift.heure_debut||"").slice(0,5)+"–"+String(shift.heure_fin||"").slice(0,5)+" · "+(site?.Nom||"Site"); box.appendChild(head);
+        const candidates=agents.map(agent=>({agent,minutes:workload.get(String(agent.id))||0,reason:conflicts(agent.id,shift)}))
+          .filter(x=>!x.reason).sort((a,b)=>a.minutes-b.minutes);
+        if(!candidates.length) {
+          const msg=document.createElement("p");msg.textContent="Aucun agent disponible sans conflit détecté.";box.appendChild(msg);
+        } else {
+          const best=candidates[0], label=document.createElement("p");
+          label.textContent="Suggestion : "+[best.agent.Prenom,best.agent.nom].filter(Boolean).join(" ")+" · charge actuelle estimée : "+formatDuration(best.minutes)+".";
+          box.appendChild(label);
+          const btn=document.createElement("button");btn.type="button";btn.textContent="Confirmer cette affectation";
+          btn.onclick=async()=>{
+            if(!confirm("Affecter "+[best.agent.Prenom,best.agent.nom].filter(Boolean).join(" ")+" à la vacation du "+shift.date_vacation+" ?"))return;
+            btn.disabled=true;
+            try{
+              const fresh=await requireUser();
+              const check=conflicts(best.agent.id,shift);
+              if(check)throw new Error("Affectation annulée : "+check+". Relance l’analyse du planning.");
+              const {error}=await db.from("planning").update({agent_id:Number(best.agent.id)}).eq("id",shift.id).eq("user_id",fresh.id).is("agent_id",null);
+              if(error)throw error;
+              status("Affectation enregistrée.");await refreshData();await suggestSmartPlanning();
+            }catch(e){showError(e);btn.disabled=false;}
+          };
+          box.appendChild(btn); proposed.push({...shift,agent_id:best.agent.id});workload.set(String(best.agent.id),best.minutes+interval(shift).minutes);count++;
+        }
+        output.appendChild(box);
+      }
+      status(count+" proposition(s) calculée(s).");
+    } catch(e) { showError(e); output.textContent="Impossible de générer les propositions : "+(e.message||e); }
+    finally { busy=false; }
+  }
+
   async function addShift() {
     if (busy) return;
     const agentId = $("shiftAgent").value;
@@ -757,6 +842,7 @@
   $("addAgentBtn").addEventListener("click", addAgent);
   $("addSiteBtn").addEventListener("click", addSite);
   $("addShiftBtn").addEventListener("click", addShift);
+  $("smartPlanningBtn").addEventListener("click", suggestSmartPlanning);
   $("refreshBtn").addEventListener("click", refreshData);
   $("logoutBtn").addEventListener("click", async () => {
     try {
