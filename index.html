@@ -202,6 +202,7 @@
         <button type="button" class="kpi-tile" data-scroll="sitesCard"><span class="kpi-icon">⌖</span><span class="kpi-label">Sites clients</span><strong id="siteCount">0</strong><span class="kpi-foot">Voir les sites →</span></button>
         <button type="button" class="kpi-tile" data-scroll="planningCard"><span class="kpi-icon">▦</span><span class="kpi-label">Vacations chargées</span><strong id="plannedCount">0</strong><span class="kpi-foot">Ouvrir le planning →</span></button>
         <div class="kpi-tile"><span class="kpi-icon">◷</span><span class="kpi-label">Vacations aujourd’hui</span><strong id="todayCount">0</strong><span class="kpi-foot">À surveiller</span></div>
+        <button type="button" class="kpi-tile" data-scroll="agentsCard"><span class="kpi-icon">⚠</span><span class="kpi-label">Alertes à traiter</span><strong id="alertCount">0</strong><span class="kpi-foot">Cartes et vacations →</span></button>
       </div>
       <div class="dashboard-lower">
         <div class="dashboard-panel"><h3>Accès rapides</h3><div class="dashboard-shortcuts"><button type="button" data-module="journal">▤ Main courante</button><button type="button" data-module="pointage">◉ Pointage</button><button type="button" data-module="rondes">⬡ Rondes</button><button type="button" data-module="clients">♧ Clients</button><button type="button" data-module="contrats">▣ Contrats</button><button type="button" data-module="finance">◈ Factures & charges</button></div></div>
@@ -392,8 +393,17 @@
 
       $("agentCount").textContent = agentsResult.data.length;
       $("plannedCount").textContent = planningResult.data.length;
-      const todayKey = new Date().toISOString().slice(0,10);
+      const now = new Date();
+      const todayKey = [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
       $("todayCount").textContent = planningResult.data.filter(x => x.date_vacation === todayKey).length;
+      const expiryAlerts = agentsResult.data.filter(a => {
+        if (!a.expiration_carte_pro) return false;
+        const expiry = new Date(a.expiration_carte_pro + "T00:00:00");
+        const today = new Date(); today.setHours(0,0,0,0);
+        return Math.ceil((expiry - today) / 86400000) <= 30;
+      }).length;
+      const incompleteShifts = planningResult.data.filter(x => x.date_vacation >= todayKey && (!x.agent_id || !x.site_id)).length;
+      $("alertCount").textContent = expiryAlerts + incompleteShifts;
       $("siteCount").textContent = sitesResult.data.length;
 
       $("agentsList").replaceChildren();
