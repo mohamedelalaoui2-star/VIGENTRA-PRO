@@ -6,7 +6,9 @@
 Faire évoluer VIGENTRA PRO en outil mobile fiable pour la gestion quotidienne d’une entreprise de sécurité privée : planning, agents, sites, pointage, conformité, clients et pilotage.
 
 ## Contenu
-- `maquette.html` — prototype responsive français, thème bleu nuit / noir / or champagne / rouge, navigation interactive et données de démonstration.
+- `maquette.html` — prototype visuel autonome en données fictives.
+- `app-v2.html` — version de travail connectable au schéma réel de Planning-vigentra, avec connexion, agents, sites, planning, pointages, qualifications, main courante, brouillons de factures et charges.
+- `AUDIT-30-10-2026.md` — constat de compatibilité et résultats des contrôles Supabase en lecture seule.
 - `ROADMAP.md` — priorités de développement.
 - `SECURITE-ET-TESTS.md` — garde-fous de sécurité et plan de vérification.
 - `MODELE-DONNEES.md` — cible fonctionnelle proposée à comparer au schéma existant avant toute migration.
@@ -25,6 +27,9 @@ Télécharger ou ouvrir `maquette.html` dans Safari, Chrome ou sur ordinateur. L
 ## État
 - [x] Dossier projet créé.
 - [x] Maquette de démonstration responsive.
+- [x] Version de travail adaptée aux noms de tables et colonnes du projet Planning-vigentra.
+- [x] Audit en lecture seule documenté.
+- [ ] Tests avec comptes responsable et agent, et vérification réelle des droits RLS.
 - [x] Feuille de route et contrôles de sécurité documentés.
 - [ ] Audit fonctionnel complet de la version actuellement publiée.
 - [ ] Validation des règles métier, tests avec comptes de test et sauvegarde.
