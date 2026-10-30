@@ -229,6 +229,8 @@
     <section class="card" id="sitesCard">
       <h2>Créer un site client</h2>
       <input id="siteName" placeholder="Nom du site client" required>
+      <label for="siteRequiredQualification">Qualification exigée pour ce site</label>
+      <select id="siteRequiredQualification"><option value="">Aucune exigence spécifique</option><option value="APS">APS</option><option value="SSIAP 1">SSIAP 1</option><option value="SSIAP 2">SSIAP 2</option><option value="SSIAP 3">SSIAP 3</option><option value="SST">SST</option></select>
       <button id="addSiteBtn">Enregistrer le site</button>
       <div id="sitesList"></div>
     </section>
@@ -364,6 +366,13 @@
     } catch (error) {
       showError(error);
     }
+  }
+
+  function agentHasRequiredQualification(agent, required) {
+    if (!required) return true;
+    const qualifications = [agent?.qualification, agent?.autres_qualifications]
+      .filter(Boolean).join(",").split(/[,;|/]+/).map(v => v.trim().toUpperCase());
+    return qualifications.includes(String(required).trim().toUpperCase());
   }
 
   function shiftDurationMinutes(start, end) {
@@ -667,6 +676,8 @@
         if(unavailable.some(u=>String(u.agent_id)===String(agentId)&&u.date_debut<=endKey&&u.date_fin>=target.date_vacation)) return "indisponibilité déclarée";
         const agent=agents.find(x=>String(x.id)===String(agentId));
         if(agent?.expiration_carte_pro && agent.expiration_carte_pro < target.date_vacation) return "carte professionnelle expirée";
+        const required=sites.find(x=>String(x.id)===String(target.site_id))?.qualification_requise;
+        if(required && !agentHasRequiredQualification(agent,required)) return "qualification requise : "+required;
         return "";
       };
       const title=document.createElement("h3"); title.textContent="Propositions d’affectation"; output.appendChild(title);
@@ -739,6 +750,21 @@
         .gte("date_vacation", ymd(previousDate))
         .lte("date_vacation", ymd(nextDate));
       if (shiftsError) throw shiftsError;
+      const [agentCheck, siteCheck] = await Promise.all([
+        db.from("agents").select("qualification,autres_qualifications,expiration_carte_pro").eq("id", Number(agentId)).eq("user_id", user.id).maybeSingle(),
+        db.from("Site").select("qualification_requise").eq("id", Number(siteId)).eq("user_id", user.id).maybeSingle()
+      ]);
+      if (agentCheck.error) throw agentCheck.error;
+      if (siteCheck.error) throw siteCheck.error;
+      if (!agentCheck.data) throw new Error("Agent introuvable dans cette entreprise.");
+      if (!siteCheck.data) throw new Error("Site client introuvable dans cette entreprise.");
+      const requiredQualification = siteCheck.data.qualification_requise;
+      if (requiredQualification && !agentHasRequiredQualification(agentCheck.data, requiredQualification)) {
+        throw new Error("Vacation refusée : ce site exige la qualification " + requiredQualification + ", absente du dossier de l’agent.");
+      }
+      if (agentCheck.data.expiration_carte_pro && agentCheck.data.expiration_carte_pro < date) {
+        throw new Error("Vacation refusée : la carte professionnelle de cet agent est expirée à la date de la vacation.");
+      }
       const overlaps = (existingShifts || []).find(shift => {
         const otherStart = new Date(shift.date_vacation + "T" + String(shift.heure_debut).slice(0,8));
         const otherEnd = new Date(shift.date_vacation + "T" + String(shift.heure_fin).slice(0,8));
@@ -806,13 +832,16 @@
     busy = true;
     try {
       const user = await requireUser();
+      const requiredQualification = $("siteRequiredQualification").value || null;
       const { error } = await db.from("Site").insert({
         user_id: user.id,
-        Nom: name
+        Nom: name,
+        qualification_requise: requiredQualification
       });
       if (error) throw error;
 
       $("siteName").value = "";
+      $("siteRequiredQualification").value = "";
       status("Site client enregistré.");
       await refreshData();
     } catch (error) {
