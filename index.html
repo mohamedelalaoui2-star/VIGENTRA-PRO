@@ -91,6 +91,22 @@
     .quick-menu { position:sticky; top:8px; z-index:20; display:flex; gap:8px; overflow-x:auto; padding:8px; margin-bottom:14px; border:1px solid var(--line); border-radius:14px; background:rgba(8,13,24,.94); backdrop-filter:blur(12px); -webkit-overflow-scrolling:touch; }
     .quick-menu button { flex:0 0 auto; width:auto; min-height:42px; margin:0; padding:10px 13px; font-size:13px; white-space:nowrap; }
     .quick-menu button.active { background:linear-gradient(135deg,#d7b778,#9e7a3d); color:#101827; }
+    .quick-menu button::before,.module-nav button::before { display:inline-flex;align-items:center;justify-content:center;flex:0 0 25px;width:25px;height:25px;margin-right:7px;border:1px solid rgba(216,184,120,.42);border-radius:8px;color:#d8b878;font-size:16px;line-height:1;vertical-align:middle;content:"◆"; }
+    .quick-menu button.active::before,.module-nav button.active::before { color:#101827;border-color:rgba(16,24,39,.35); }
+    .quick-menu button[data-scroll="dashboardCard"]::before { content:"◈"; }
+    .quick-menu button[data-scroll="agentsCard"]::before { content:"♙"; }
+    .quick-menu button[data-scroll="sitesCard"]::before { content:"▣"; }
+    .quick-menu button[data-scroll="planningCard"]::before { content:"◷"; }
+    [data-module="journal"]::before { content:"≡"; }
+    [data-module="pointage"]::before { content:"✓"; }
+    [data-module="indispo"]::before { content:"◷"; }
+    [data-module="rondes"]::before { content:"⟳"; }
+    [data-module="clients"]::before { content:"♧"; }
+    [data-module="contrats"]::before { content:"▤"; }
+    [data-module="devis"]::before { content:"◇"; }
+    [data-module="finance"]::before { content:"€";font-size:14px; }
+    [data-module="exports"]::before { content:"⇩"; }
+    [data-module="equipe"]::before { content:"♙"; }
     .module-nav { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px; }
     .module-nav button { margin:0;min-height:44px;padding:9px;font-size:13px; }
     .module-nav button.active { background:linear-gradient(135deg,#d7b778,#9e7a3d);color:#101827; }
