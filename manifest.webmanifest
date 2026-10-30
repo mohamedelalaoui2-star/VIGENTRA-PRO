@@ -1,0 +1,20 @@
+{
+  "name": "VIGENTRA PRO",
+  "short_name": "VIGENTRA",
+  "description": "Gestion professionnelle de sécurité privée — TEA SÉCURITÉ PRIVÉE",
+  "lang": "fr-FR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080d18",
+  "theme_color": "#101827",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
