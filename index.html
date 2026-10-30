@@ -246,6 +246,7 @@
         <div><label for="shiftEnd">Fin</label><input id="shiftEnd" type="time" required></div>
       </div>
       <button id="addShiftBtn">Enregistrer la vacation</button>
+      <button type="button" id="sharePlanningBtn" class="secondary">📲 Envoyer le planning par WhatsApp</button>
       <button type="button" id="smartPlanningBtn" class="secondary">✨ IA planning intelligente — proposer les affectations</button>
       <div id="smartPlanningResults" aria-live="polite"></div>
       <p>Heures planifiées affichées : <strong id="plannedHours">0 h</strong></p>
@@ -543,6 +544,47 @@
   }
 
  
+  async function sharePlanningWhatsApp() {
+    const button=$("sharePlanningBtn");
+    if(button.disabled)return;
+    button.disabled=true;
+    try {
+      const user=await requireUser();
+      const [agentsR,sitesR,shiftsR]=await Promise.all([
+        db.from("agents").select("id,nom,Prenom").eq("user_id",user.id),
+        db.from("Site").select("id,Nom").eq("user_id",user.id),
+        db.from("planning").select("date_vacation,heure_debut,heure_fin,agent_id,site_id,statut").eq("user_id",user.id).order("date_vacation",{ascending:true})
+      ]);
+      for(const r of [agentsR,sitesR,shiftsR])if(r.error)throw r.error;
+      const now=new Date();now.setHours(0,0,0,0);
+      const key=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+      const from=key(now);const untilDate=new Date(now);untilDate.setDate(untilDate.getDate()+7);const until=key(untilDate);
+      const shifts=(shiftsR.data||[]).filter(s=>s.date_vacation>=from&&s.date_vacation<until);
+      if(!shifts.length){status("Aucune vacation sur les 7 prochains jours à partager.");return;}
+      const agents=agentsR.data||[],sites=sitesR.data||[];
+      const lines=["*TEA SÉCURITÉ PRIVÉE — PLANNING DES VACATIONS*","Période : "+from+" au "+key(new Date(untilDate.getTime()-86400000)),""];
+      for(const s of shifts){
+        const a=agents.find(x=>String(x.id)===String(s.agent_id));
+        const site=sites.find(x=>String(x.id)===String(s.site_id));
+        const agent=a?[a.Prenom,a.nom].filter(Boolean).join(" "):"⚠️ Agent non affecté";
+        const siteName=site?.Nom||"⚠️ Site non défini";
+        lines.push("• "+s.date_vacation+" | "+String(s.heure_debut||"").slice(0,5)+"–"+String(s.heure_fin||"").slice(0,5)+" | "+agent+" | "+siteName+(s.statut?" | "+s.statut:""));
+      }
+      lines.push("","Envoyé depuis VIGENTRA PRO.");
+      const message=lines.join("\n");
+      if(navigator.share){
+        await navigator.share({title:"Planning TEA SÉCURITÉ PRIVÉE",text:message});
+        status("Planning partagé via le menu de partage.");
+      }else{
+        window.location.href="https://wa.me/?text="+encodeURIComponent(message);
+        status("Ouverture de WhatsApp avec le planning.");
+      }
+    }catch(e){
+      if(e&&e.name==="AbortError"){status("Partage annulé.");}
+      else{showError(e);}
+    }finally{button.disabled=false;}
+  }
+
   async function suggestSmartPlanning() {
     const output = $("smartPlanningResults");
     if (busy) return;
@@ -842,6 +884,7 @@
   $("addAgentBtn").addEventListener("click", addAgent);
   $("addSiteBtn").addEventListener("click", addSite);
   $("addShiftBtn").addEventListener("click", addShift);
+  $("sharePlanningBtn").addEventListener("click", sharePlanningWhatsApp);
   $("smartPlanningBtn").addEventListener("click", suggestSmartPlanning);
   $("refreshBtn").addEventListener("click", refreshData);
   $("logoutBtn").addEventListener("click", async () => {
