@@ -23,6 +23,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:1
 <div class="actions"><button class="btn primary" id="connectLogin">Se connecter</button><button class="btn" id="signup">Créer un compte</button></div>
 <div id="loginStatus" class="status" role="status" aria-live="polite">Aucune connexion établie.</div></div></section>
 <div id="workspace" class="hidden">
+<div id="workspaceStatus" class="status" role="status" aria-live="polite">Espace chargé.</div>
 <div class="layout">
 <aside class="side"><div class="eyebrow" style="padding:8px 10px">Espace entreprise</div>
 <button class="nav active" data-view="dashboard"><span>▦</span>Tableau de bord</button><button class="nav" data-view="planning"><span>▤</span>Planning</button><button class="nav" data-view="agents"><span>♙</span>Agents</button><button class="nav" data-view="sites"><span>⌖</span>Sites clients</button><button class="nav" data-view="pointages"><span>◷</span>Pointages</button><button class="nav" data-view="qualifications"><span>✓</span>Qualifications</button><button class="nav" data-view="journal"><span>≡</span>Main courante</button><button class="nav" data-view="factures"><span>€</span>Factures</button><button class="nav" data-view="charges"><span>↘</span>Charges</button><hr><button class="nav" id="refresh">↻ Actualiser</button><button class="nav" id="logout">⇥ Déconnexion</button><div class="note">Les droits de lecture et d'écriture sont imposés par les politiques RLS de Supabase. Aucun contrôle côté interface ne remplace ces politiques.</div></aside>
@@ -50,7 +51,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:1
 "use strict";
 var db=null,user=null,workspaceOwner=null,cache={agents:[],sites:[],planning:[],pointages:[],qualifications:[],journal:[],factures:[],charges:[]},busy=false;
 function $(id){return document.getElementById(id)}
-function setStatus(id,msg,kind){var el=$(id);if(!el)return;el.textContent=msg;el.className="status"+(kind?" "+kind:"")}
+function setStatus(id,msg,kind){var el=$(id);if(el){el.textContent=msg;el.className="status"+(kind?" "+kind:"")}if(id==="loginStatus"&&$("workspace")&&!$("workspace").classList.contains("hidden")){var w=$("workspaceStatus");if(w){w.textContent=msg;w.className="status"+(kind?" "+kind:"")}}}
 function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function fmtDate(v){if(!v)return "—";var d=new Date(v+"T00:00:00");return isNaN(d.getTime())?esc(v):d.toLocaleDateString("fr-FR")}
 function fmtDateTime(v){if(!v)return "—";var d=new Date(v);return isNaN(d.getTime())?esc(v):d.toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"})}
