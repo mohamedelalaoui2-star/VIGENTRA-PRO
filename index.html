@@ -139,6 +139,22 @@
       <button id="addSiteBtn">Enregistrer le site</button>
       <div id="sitesList"></div>
     </section>
+
+    <section class="card">
+      <h2>Planning des vacations</h2>
+      <label for="shiftAgent">Agent</label>
+      <select id="shiftAgent" required><option value="">Choisir un agent</option></select>
+      <label for="shiftSite">Site client</label>
+      <select id="shiftSite" required><option value="">Choisir un site</option></select>
+      <label for="shiftDate">Date</label>
+      <input id="shiftDate" type="date" required>
+      <div class="grid">
+        <div><label for="shiftStart">Début</label><input id="shiftStart" type="time" required></div>
+        <div><label for="shiftEnd">Fin</label><input id="shiftEnd" type="time" required></div>
+      </div>
+      <button id="addShiftBtn">Enregistrer la vacation</button>
+      <div id="planningList"></div>
+    </section>
   </main>
 
 <script>
@@ -226,13 +242,15 @@
     try {
       const user = await requireUser();
 
-      const [agentsResult, sitesResult] = await Promise.all([
+      const [agentsResult, sitesResult, planningResult] = await Promise.all([
         db.from("agents").select("*").eq("user_id", user.id).order("nom"),
-        db.from("Site").select("*").eq("user_id", user.id).order("Nom")
+        db.from("Site").select("*").eq("user_id", user.id).order("Nom"),
+        db.from("planning").select("*").eq("user_id", user.id).order("date_vacation", { ascending: false }).limit(100)
       ]);
 
       if (agentsResult.error) throw agentsResult.error;
       if (sitesResult.error) throw sitesResult.error;
+      if (planningResult.error) throw planningResult.error;
 
       $("agentCount").textContent = agentsResult.data.length;
       $("siteCount").textContent = sitesResult.data.length;
@@ -249,12 +267,34 @@
         $("agentsList").appendChild(item);
       });
 
+      const agentSelect = $("shiftAgent");
+      const priorAgent = agentSelect.value;
+      agentSelect.replaceChildren(new Option("Choisir un agent", ""));
+      agentsResult.data.forEach(agent => agentSelect.add(new Option([agent.Prenom, agent.nom].filter(Boolean).join(" ") || agent.nom || "Agent", String(agent.id))));
+      if (priorAgent) agentSelect.value = priorAgent;
+
+      const siteSelect = $("shiftSite");
+      const priorSite = siteSelect.value;
+      siteSelect.replaceChildren(new Option("Choisir un site", ""));
+      sitesResult.data.forEach(site => siteSelect.add(new Option(site.Nom || "Site", String(site.id))));
+      if (priorSite) siteSelect.value = priorSite;
+
       $("sitesList").replaceChildren();
       sitesResult.data.forEach(site => {
         const item = document.createElement("div");
         item.className = "item";
         item.textContent = site.Nom;
         $("sitesList").appendChild(item);
+      });
+
+      $("planningList").replaceChildren();
+      planningResult.data.forEach(shift => {
+        const agent = agentsResult.data.find(a => String(a.id) === String(shift.agent_id));
+        const site = sitesResult.data.find(x => String(x.id) === String(shift.site_id));
+        const item = document.createElement("div");
+        item.className = "item";
+        item.textContent = [shift.date_vacation, (shift.heure_debut || "").slice(0,5) + "–" + (shift.heure_fin || "").slice(0,5), agent ? [agent.Prenom, agent.nom].filter(Boolean).join(" ") : "Agent", site ? site.Nom : "Site", shift.statut || "prévue"].filter(Boolean).join(" — ");
+        $("planningList").appendChild(item);
       });
 
       status("VIGENTRA PRO connecté à Supabase.");
@@ -296,6 +336,46 @@
     }
   }
 
+  async function addShift() {
+    if (busy) return;
+    const agentId = $("shiftAgent").value;
+    const siteId = $("shiftSite").value;
+    const date = $("shiftDate").value;
+    const start = $("shiftStart").value;
+    const end = $("shiftEnd").value;
+    if (!agentId || !siteId || !date || !start || !end) {
+      status("Complète l'agent, le site, la date et les horaires.");
+      return;
+    }
+    if (start === end) {
+      status("L'heure de fin doit être différente de l'heure de début.");
+      return;
+    }
+    busy = true;
+    try {
+      const user = await requireUser();
+      const { error } = await db.from("planning").insert({
+        user_id: user.id,
+        agent_id: Number(agentId),
+        site_id: Number(siteId),
+        date_vacation: date,
+        heure_debut: start,
+        heure_fin: end,
+        statut: "prévue"
+      });
+      if (error) throw error;
+      $("shiftDate").value = "";
+      $("shiftStart").value = "";
+      $("shiftEnd").value = "";
+      status("Vacation enregistrée.");
+      await refreshData();
+    } catch (error) {
+      showError(error);
+    } finally {
+      busy = false;
+    }
+  }
+
   async function addSite() {
     if (busy) return;
     const name = $("siteName").value.trim();
@@ -328,6 +408,7 @@
   $("signupBtn").addEventListener("click", () => login(true));
   $("addAgentBtn").addEventListener("click", addAgent);
   $("addSiteBtn").addEventListener("click", addSite);
+  $("addShiftBtn").addEventListener("click", addShift);
   $("refreshBtn").addEventListener("click", refreshData);
   $("logoutBtn").addEventListener("click", async () => {
     try {
