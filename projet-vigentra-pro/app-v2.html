@@ -70,12 +70,11 @@ document.querySelectorAll("[data-view]").forEach(function(x){x.addEventListener(
 $("moreNav").addEventListener("click",function(){var menu=$("moreMenu"),open=menu.classList.toggle("hidden")===false;this.setAttribute("aria-expanded",open?"true":"false")});
 document.querySelectorAll("[data-go]").forEach(function(x){x.addEventListener("click",function(){nav(x.dataset.go)})});
 async function ensureUser(){if(!db)throw new Error("Configure Supabase puis connecte-toi.");var r=await db.auth.getUser();if(r.error)throw r.error;if(!r.data.user)throw new Error("Session expirée : reconnecte-toi.");user=r.data.user;return user}
-async function connectAndLogin(create){var url=$("supabaseUrl").value.trim().replace(/\/+$/,""),key=$("supabaseKey").value.trim(),email=$("email").value.trim(),password=$("password").value;
-if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)||key.length<20){notify("Vérifie l'URL et la clé publique Supabase. N'utilise jamais une clé secrète.", "error");return}
-if(!email||password.length<6){notify("Entre un e-mail valide et un mot de passe d'au moins 6 caractères.","error");return}
-try{rememberConfig(url,key);db=window.supabase.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});setStatus("loginStatus","Connexion en cours…");
-var r=create?await db.auth.signUp({email:email,password:password}):await db.auth.signInWithPassword({email:email,password:password});if(r.error)throw r.error;
-if(create&&!r.data.session){notify("Compte créé. Vérifie ton e-mail si la confirmation est activée, puis connecte-toi.");return}
+async function connectAndLogin(){var url=$("supabaseUrl").value.trim().replace(/\/+$/,""),key=$("supabaseKey").value.trim(),email=$("email").value.trim(),password=$("password").value;
+if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)||key.length<20){notify("La configuration Supabase est invalide. Contacte l’administrateur.", "error");return}
+if(!email||password.length<6){notify("Entre ton e-mail et un mot de passe valide.","error");return}
+try{db=window.supabase.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});setStatus("loginStatus","Connexion en cours…");
+var r=await db.auth.signInWithPassword({email:email,password:password});if(r.error)throw r.error;
 await startWorkspace()}catch(e){notify("Connexion impossible : "+(e.message||String(e)),"error")}}
 async function startWorkspace(){try{await ensureUser();$("loginView").classList.add("hidden");$("workspace").classList.remove("hidden");$("accountLabel").textContent=user.email||"Connecté";
 try{var wr=await db.rpc("vigentra_workspace_owner_id");if(wr.error)throw wr.error;workspaceOwner=wr.data||user.id}catch(e){workspaceOwner=user.id;setStatus("loginStatus","Espace personnel chargé. Si tu es directeur invité, certaines créations peuvent être refusées par les règles d'accès.","")}
