@@ -42,7 +42,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:1
 <section class="view" id="view-charges"><div class="pagehead"><div><div class="eyebrow">Pilotage financier</div><h2>Charges de l'entreprise</h2></div></div><div class="grid2"><article class="panel"><h3>Ajouter une charge</h3><form id="chargeForm"><div class="field"><label>Date *</label><input name="date" type="date" required></div><div class="field" style="margin-top:9px"><label>Catégorie</label><select name="categorie"><option value="personnel">Personnel</option><option value="carburant">Carburant</option><option value="materiel">Matériel</option><option value="assurance">Assurance</option><option value="administratif">Administratif</option><option value="autre">Autre</option></select></div><div class="field" style="margin-top:9px"><label>Description *</label><input name="description" required maxlength="300"></div><div class="field" style="margin-top:9px"><label>Montant HT (€) *</label><input name="montant" type="number" min="0" step="0.01" required></div><button class="btn primary" type="submit">Enregistrer la charge</button></form></article><article class="panel"><h3>Charges récentes</h3><div id="chargesList"></div></article></div></section>
 </main></div>
 <nav class="mobile-nav"><button class="active" data-view="dashboard"><span>▦</span>Accueil</button><button data-view="planning"><span>▤</span>Planning</button><button data-view="agents"><span>♙</span>Agents</button><button data-view="sites"><span>⌖</span>Sites</button><button data-view="pointages"><span>◷</span>Pointage</button></nav>
-</div></div>
+</div>
 <div class="foot">Version de travail non publiée • Vérifier les droits et les règles métier avant toute utilisation opérationnelle.</div>
 </div>
 <script>
