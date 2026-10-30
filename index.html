@@ -88,6 +88,9 @@
     hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
     .hidden { display: none !important; }
     .module-card { grid-column:1/-1; }
+    .quick-menu { position:sticky; top:8px; z-index:20; display:flex; gap:8px; overflow-x:auto; padding:8px; margin-bottom:14px; border:1px solid var(--line); border-radius:14px; background:rgba(8,13,24,.94); backdrop-filter:blur(12px); -webkit-overflow-scrolling:touch; }
+    .quick-menu button { flex:0 0 auto; width:auto; min-height:42px; margin:0; padding:10px 13px; font-size:13px; white-space:nowrap; }
+    .quick-menu button.active { background:linear-gradient(135deg,#d7b778,#9e7a3d); color:#101827; }
     .module-nav { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px; }
     .module-nav button { margin:0;min-height:44px;padding:9px;font-size:13px; }
     .module-nav button.active { background:linear-gradient(135deg,#d7b778,#9e7a3d);color:#101827; }
@@ -138,7 +141,8 @@
   </section>
 
   <main id="app" class="hidden">
-    <section class="card">
+    <nav class="quick-menu" aria-label="Menu principal"><button type="button" data-scroll="dashboardCard">Tableau de bord</button><button type="button" data-scroll="agentsCard">Agents</button><button type="button" data-scroll="sitesCard">Sites</button><button type="button" data-scroll="planningCard">Planning</button><button type="button" data-scroll="operationsCard">Autres modules</button></nav>
+    <section class="card" id="dashboardCard">
       <h2>Tableau de bord</h2>
       <p>Agents : <strong id="agentCount">0</strong></p>
       <p>Sites : <strong id="siteCount">0</strong></p>
@@ -146,7 +150,7 @@
       <button id="logoutBtn" class="danger">Se déconnecter</button>
     </section>
 
-    <section class="card">
+    <section class="card" id="agentsCard">
       <h2>Ajouter un agent</h2>
       <input id="agentName" placeholder="Nom et prénom" required>
       <input id="agentEmail" type="email" placeholder="E-mail (facultatif)">
@@ -160,14 +164,14 @@
       <div id="agentsList"></div>
     </section>
 
-    <section class="card">
+    <section class="card" id="sitesCard">
       <h2>Créer un site client</h2>
       <input id="siteName" placeholder="Nom du site client" required>
       <button id="addSiteBtn">Enregistrer le site</button>
       <div id="sitesList"></div>
     </section>
 
-    <section class="card">
+    <section class="card" id="planningCard">
       <h2>Planning des vacations</h2>
       <label for="shiftAgent">Agent</label>
       <select id="shiftAgent" required><option value="">Choisir un agent</option></select>
@@ -184,7 +188,7 @@
       <div id="planningList"></div>
     </section>
   
-    <section class="card module-card">
+    <section class="card module-card" id="operationsCard">
       <h2>Gestion opérationnelle</h2>
       <div class="module-nav">
         <button type="button" data-module="journal">Main courante</button>
@@ -654,6 +658,7 @@
     } catch(e){showError(e);mc.innerHTML='<div class="item">Erreur de chargement : '+esc(e.message)+'</div>';}
   }
   document.querySelectorAll("[data-module]").forEach(b=>b.addEventListener("click",()=>openModule(b.dataset.module)));
+  document.querySelectorAll("[data-scroll]").forEach(b=>b.addEventListener("click",()=>{const target=document.getElementById(b.dataset.scroll);if(target){target.scrollIntoView({behavior:"smooth",block:"start"});document.querySelectorAll("[data-scroll]").forEach(x=>x.classList.toggle("active",x===b));}}));
 
   $("installHelpBtn").addEventListener("click", () => alert("Pour installer VIGENTRA PRO sur iPhone : 1. Ouvre cette page dans Safari. 2. Appuie sur le bouton Partager. 3. Choisis « Sur l’écran d’accueil ». 4. Appuie sur Ajouter."));
   $("loginBtn").addEventListener("click", () => login(false));
