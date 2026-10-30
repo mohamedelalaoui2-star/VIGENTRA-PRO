@@ -581,6 +581,18 @@
         if (overlapSiteResult.error) throw overlapSiteResult.error;
         throw new Error("Vacation refusée : cet agent a déjà une vacation qui chevauche cet horaire" + (overlapSiteResult.data?.Nom ? " (site : " + overlapSiteResult.data.Nom + ")" : "") + ".");
       }
+      const endDateKey = [endAt.getFullYear(), String(endAt.getMonth()+1).padStart(2,"0"), String(endAt.getDate()).padStart(2,"0")].join("-");
+      const { data: unavailable, error: unavailableError } = await db.from("indisponibilites")
+        .select("date_debut,date_fin,motif")
+        .eq("user_id", user.id)
+        .eq("agent_id", Number(agentId))
+        .eq("actif", true)
+        .lte("date_debut", endDateKey)
+        .gte("date_fin", date);
+      if (unavailableError) throw unavailableError;
+      if (unavailable && unavailable.length) {
+        throw new Error("Vacation refusée : cet agent est déclaré indisponible sur cette période" + (unavailable[0].motif ? " (" + unavailable[0].motif + ")" : "") + ".");
+      }
       const { error } = await db.from("planning").insert({
         user_id: user.id,
         agent_id: Number(agentId),
