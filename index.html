@@ -179,9 +179,8 @@
         <path d="M26 77 37 99 48 108 42 113Q27 101 22 82Z" fill="#c92135"/>
         <path d="M94 77 83 99 72 108 78 113Q93 101 98 82Z" fill="#c92135"/>
       </svg>
-    </div><div class="brand-copy"><h1><span>VIGENTRA</span> <em>PRO</em></h1><div class="brand-sub">TEA SÉCURITÉ PRIVÉE</div><div class="brand-motto">PLANIFIER&nbsp; | &nbsp;GÉRER&nbsp; | &nbsp;SÉCURISER</div></div></div>
-    <button id="installHelpBtn" type="button">＋ Installer sur mon iPhone</button>
-    <p id="status" class="status" hidden></p>
+    </div><div class="brand-copy"><h1><span>VIGENTRA</span> <em>PRO</em></h1><div class="brand-sub">TEA SÉCURITÉ PRIVÉE</div><div class="brand-motto">PLANIFIER&nbsp; | &nbsp;GÉRER&nbsp; | &nbsp;SÉCURISER</div></div></div> 
+<p id="status" class="status" hidden></p>
   </header>
 
   <section class="card" id="loginCard">
@@ -725,8 +724,6 @@
   }
   document.querySelectorAll("[data-module]").forEach(b=>b.addEventListener("click",()=>{openModule(b.dataset.module);document.querySelectorAll(".quick-menu [data-module]").forEach(x=>x.classList.toggle("active",x===b));}));
   document.querySelectorAll("[data-scroll]").forEach(b=>b.addEventListener("click",()=>{showAppSection(b.dataset.scroll);document.querySelectorAll("[data-scroll]").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".quick-menu [data-module]").forEach(x=>x.classList.remove("active"));}));
-
-  $("installHelpBtn").addEventListener("click", () => alert("Pour installer VIGENTRA PRO sur iPhone : 1. Ouvre cette page dans Safari. 2. Appuie sur le bouton Partager. 3. Choisis « Sur l’écran d’accueil ». 4. Appuie sur Ajouter."));
   $("loginBtn").addEventListener("click", () => login(false));
   $("signupBtn").addEventListener("click", () => login(true));
   $("addAgentBtn").addEventListener("click", addAgent);
