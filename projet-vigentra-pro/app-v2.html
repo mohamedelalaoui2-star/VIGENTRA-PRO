@@ -13,15 +13,13 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:1
 </head>
 <body>
 <div class="app">
-<header class="top"><div class="brand"><div class="mark">VP</div><div><div class="eyebrow">Gestion opérationnelle</div><h1>VIGENTRA PRO</h1><small>TEA SÉCURITÉ PRIVÉE</small></div></div><span class="tag">VERSION DE TRAVAIL</span></header>
+<header class="top"><div class="brand"><div class="mark">VP</div><div><div class="eyebrow">Gestion opérationnelle</div><h1>VIGENTRA PRO</h1><small>TEA SÉCURITÉ PRIVÉE</small></div></div><span class="tag">ESPACE SÉCURISÉ</span></header>
 <section id="loginView" class="login">
-<div class="panel"><div class="eyebrow">Connexion sécurisée</div><h2 style="font-size:22px;margin-top:5px">Accéder à VIGENTRA PRO</h2><p class="note">Cette version vise le projet Supabase Planning-vigentra. La clé publique est mémorisée sur cet appareil après saisie pour éviter de la redemander. Ne colle jamais une clé service_role ou secrète.</p>
-<details class="config"><summary>Configuration technique</summary><p class="note">À utiliser uniquement lors de la première configuration ou en cas de changement de projet.</p>
-<div class="field"><label for="supabaseUrl">URL Supabase</label><input id="supabaseUrl" type="url" value="https://pqpoxbsudbydsppqoxon.supabase.co" autocomplete="url"></div>
-<div class="field" style="margin-top:10px"><label for="supabaseKey">Clé publique (publishable / anon)</label><input id="supabaseKey" type="password" placeholder="Clé publique" autocomplete="off"><small>Enregistrée localement sur cet appareil. Aucun mot de passe de compte n’est stocké ici.</small></div></details>
+<div class="panel"><div class="eyebrow">Connexion sécurisée</div><h2 style="font-size:22px;margin-top:5px">Accéder à VIGENTRA PRO</h2><p class="note">Configuration sécurisée déjà intégrée. Connecte-toi avec ton compte directeur. La clé publique n’est pas affichée et le mot de passe n’est pas enregistré dans le code.</p>
+<input id="supabaseUrl" type="hidden" value="https://pqpoxbsudbydsppqoxon.supabase.co"><input id="supabaseKey" type="hidden" value="sb_publishable_H-zHZU7v1uIwLec4CkDWow_5ZtK9gPf">
 <div class="field" style="margin-top:10px"><label for="email">Adresse e-mail</label><input id="email" type="email" value="teasecurite@gmail.com" autocomplete="username"></div>
 <div class="field" style="margin-top:10px"><label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password"></div>
-<div class="actions"><button class="btn primary" id="connectLogin">Se connecter</button><button class="btn" id="signup">Créer un compte</button></div>
+<div class="actions"><button class="btn primary" id="connectLogin">Se connecter</button></div>
 <div id="loginStatus" class="status" role="status" aria-live="polite">Aucune connexion établie.</div></div></section>
 <div id="workspace" class="hidden">
 <div id="workspaceStatus" class="status" role="status" aria-live="polite">Espace chargé.</div>
@@ -45,26 +43,21 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:1
 </main></div>
 <nav class="mobile-nav"><button class="active" data-view="dashboard"><span>▦</span>Accueil</button><button data-view="planning"><span>▤</span>Planning</button><button data-view="agents"><span>♙</span>Agents</button><button data-view="sites"><span>⌖</span>Sites</button><button data-view="pointages"><span>◷</span>Pointage</button><button id="moreNav" aria-expanded="false"><span>⋯</span>Plus</button></nav><div id="moreMenu" class="mobile-more hidden"><button data-view="qualifications">Qualifications</button><button data-view="journal">Main courante</button><button data-view="factures">Factures</button><button data-view="charges">Charges</button></div>
 </div>
-<div class="foot">Version de travail non publiée • Vérifier les droits et les règles métier avant toute utilisation opérationnelle.</div>
+<div class="foot">TEA SÉCURITÉ PRIVÉE · Connexion protégée par Supabase. Utiliser uniquement avec un compte autorisé.</div>
 </div>
 <script>
 (function(){
 "use strict";
 var db=null,user=null,workspaceOwner=null,cache={agents:[],sites:[],planning:[],pointages:[],qualifications:[],journal:[],factures:[],charges:[]},busy=false;
 function $(id){return document.getElementById(id)}
-var CONFIG_KEY="vigentra.supabase.config.v1";
-try{var savedConfig=JSON.parse(localStorage.getItem(CONFIG_KEY)||"null");if(savedConfig&&savedConfig.url&&savedConfig.key){$("supabaseUrl").value=savedConfig.url;$("supabaseKey").value=savedConfig.key}}catch(e){}
-function rememberConfig(url,key){try{localStorage.setItem(CONFIG_KEY,JSON.stringify({url:url,key:key}))}catch(e){notify("La clé ne peut pas être mémorisée dans ce navigateur. Tu devras la saisir à nouveau.","")}}
+function rememberConfig(url,key){}
 function setStatus(id,msg,kind){var el=$(id);if(el){el.textContent=msg;el.className="status"+(kind?" "+kind:"")}if(id==="loginStatus"&&$("workspace")&&!$("workspace").classList.contains("hidden")){var w=$("workspaceStatus");if(w){w.textContent=msg;w.className="status"+(kind?" "+kind:"")}}}
 function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function fmtDate(v){if(!v)return "—";var d=new Date(v+"T00:00:00");return isNaN(d.getTime())?esc(v):d.toLocaleDateString("fr-FR")}
 function fmtDateTime(v){if(!v)return "—";var d=new Date(v);return isNaN(d.getTime())?esc(v):d.toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"})}
 function eur(v){return Number(v||0).toLocaleString("fr-FR",{style:"currency",currency:"EUR"})}
 function notify(msg,kind){setStatus("loginStatus",msg,kind||"")}
-function saveConfigFromFields(){var url=$("supabaseUrl").value.trim().replace(/\/+$/,""),key=$("supabaseKey").value.trim();if(/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)&&key.length>=20){try{localStorage.setItem(CONFIG_KEY,JSON.stringify({url:url,key:key}))}catch(e){}}}
-$("supabaseUrl").addEventListener("change",saveConfigFromFields);
-$("supabaseKey").addEventListener("input",saveConfigFromFields);
-$("supabaseKey").addEventListener("change",saveConfigFromFields);
+
 function formData(form){return Object.fromEntries(new FormData(form).entries())}
 function opts(items,idKey,labelFn,first){var html='<option value="">'+esc(first||"— Aucun —")+'</option>';items.forEach(function(x){html+='<option value="'+esc(x[idKey])+'">'+esc(labelFn(x))+'</option>'});return html}
 function agentName(a){return [a.Prenom,a.nom].filter(Boolean).join(" ")||("Agent #"+a.id)}
@@ -124,7 +117,7 @@ bindForm("invoiceForm",async function(f){var qty=Number(f.quantite),price=Number
 bindForm("chargeForm",async function(f){var amount=Number(f.montant);if(!f.date||!f.description.trim()||!Number.isFinite(amount)||amount<0)throw new Error("Date, description et montant positif ou nul obligatoires.");await insert("charges_entreprise",{date_charge:f.date,categorie:f.categorie,description:f.description.trim(),montant_ht:amount})});
 $("agentSearch").addEventListener("input",renderAgents);
 $("connectLogin").addEventListener("click",function(){connectAndLogin(false)});
-$("signup").addEventListener("click",function(){connectAndLogin(true)});
+
 $("refresh").addEventListener("click",loadAll);
 $("logout").addEventListener("click",async function(){try{if(db){var r=await db.auth.signOut();if(r.error)throw r.error}user=null;workspaceOwner=null;$("workspace").classList.add("hidden");$("loginView").classList.remove("hidden");setStatus("loginStatus","Déconnecté.","ok")}catch(e){setStatus("loginStatus","Erreur de déconnexion : "+e.message,"error")}});
 function csvExport(){var rows=[["Date","Début","Fin","Site","Agent","Statut"]];cache.planning.forEach(function(s){var a=cache.agents.find(function(x){return String(x.id)===String(s.agent_id)}),site=cache.sites.find(function(x){return String(x.id)===String(s.site_id)});rows.push([s.date_vacation,s.heure_debut,s.heure_fin,site?siteName(site):"",a?agentName(a):"",s.statut||"planifiee"])});var csv="\ufeff"+rows.map(function(row){return row.map(function(v){return '"'+String(v==null?"":v).replace(/"/g,'""')+'"'}).join(";")}).join("\r\n");var blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="vigentra-planning.csv";document.body.appendChild(a);a.click();a.remove();window.setTimeout(function(){URL.revokeObjectURL(url)},1500)}
