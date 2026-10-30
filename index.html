@@ -412,7 +412,7 @@
       const user = await requireUser();
       $("loginCard").classList.add("hidden");
       $("app").classList.remove("hidden");
-      const found = await db.from("agents").select("*").eq("auth_user_id", user.id).maybeSingle();
+      const found = await db.from("agents").select("id,nom,Prenom,user_id,auth_user_id").eq("auth_user_id", user.id).maybeSingle();
       if (found.error) throw found.error;
       if (found.data) { await loadAgentPortal(user, found.data); return; }
       showAppSection("dashboardCard");
