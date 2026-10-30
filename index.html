@@ -127,6 +127,11 @@
       <input id="agentName" placeholder="Nom et prénom" required>
       <input id="agentEmail" type="email" placeholder="E-mail (facultatif)">
       <input id="agentPhone" type="tel" placeholder="Téléphone (facultatif)">
+      <label for="agentQualification">Qualification principale</label>
+      <select id="agentQualification"><option value="">À renseigner</option><option value="APS">APS</option><option value="SSIAP 1">SSIAP 1</option><option value="SSIAP 2">SSIAP 2</option><option value="SSIAP 3">SSIAP 3</option><option value="SST">SST</option><option value="Autre">Autre</option></select>
+      <input id="agentCardNumber" placeholder="Numéro de carte professionnelle (facultatif)">
+      <label for="agentCardExpiry">Expiration de la carte professionnelle</label>
+      <input id="agentCardExpiry" type="date">
       <button id="addAgentBtn">Enregistrer l'agent</button>
       <div id="agentsList"></div>
     </section>
@@ -276,8 +281,19 @@
         item.textContent = [
           [agent.Prenom, agent.nom].filter(Boolean).join(" "),
           agent.Email,
-          agent["Téléphone"]
+          agent["Téléphone"],
+          agent.qualification ? "Qualification : " + agent.qualification : "",
+          agent.numero_carte_pro ? "Carte pro : " + agent.numero_carte_pro : "",
+          agent.expiration_carte_pro ? "Expiration : " + agent.expiration_carte_pro : ""
         ].filter(Boolean).join(" — ");
+        if (agent.expiration_carte_pro) {
+          const expiryDate = new Date(agent.expiration_carte_pro + "T00:00:00");
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const days = Math.ceil((expiryDate - today) / 86400000);
+          if (days < 0) item.textContent += " — ALERTE : carte expirée";
+          else if (days <= 30) item.textContent += " — ALERTE : expiration dans " + days + " jour(s)";
+        }
         $("agentsList").appendChild(item);
       });
 
@@ -336,7 +352,10 @@
         user_id: user.id,
         nom: agentName,
         Email: $("agentEmail").value.trim() || null,
-        "Téléphone": $("agentPhone").value.trim() || null
+        "Téléphone": $("agentPhone").value.trim() || null,
+        qualification: $("agentQualification").value || null,
+        numero_carte_pro: $("agentCardNumber").value.trim() || null,
+        expiration_carte_pro: $("agentCardExpiry").value || null
       };
 
       const { error } = await db.from("agents").insert(agent);
@@ -345,6 +364,9 @@
       $("agentName").value = "";
       $("agentEmail").value = "";
       $("agentPhone").value = "";
+      $("agentQualification").value = "";
+      $("agentCardNumber").value = "";
+      $("agentCardExpiry").value = "";
       status("Agent enregistré.");
       await refreshData();
     } catch (error) {
