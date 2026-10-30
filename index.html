@@ -151,6 +151,7 @@
         <div><label for="shiftEnd">Fin</label><input id="shiftEnd" type="time" required></div>
       </div>
       <button id="addShiftBtn">Enregistrer la vacation</button>
+      <p>Heures planifiées affichées : <strong id="plannedHours">0 h</strong></p>
       <div id="planningList"></div>
     </section>
   </main>
@@ -234,6 +235,23 @@
     }
   }
 
+  function shiftDurationMinutes(start, end) {
+    if (!start || !end) return 0;
+    const toMinutes = value => {
+      const parts = value.split(":").map(Number);
+      return parts[0] * 60 + parts[1];
+    };
+    let minutes = toMinutes(end) - toMinutes(start);
+    if (minutes < 0) minutes += 24 * 60;
+    return minutes;
+  }
+
+  function formatDuration(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const remainder = minutes % 60;
+    return remainder ? hours + " h " + remainder + " min" : hours + " h";
+  }
+
   async function refreshData() {
     try {
       const user = await requireUser();
@@ -284,15 +302,19 @@
       });
 
       $("planningList").replaceChildren();
+      let totalPlannedMinutes = 0;
       planningResult.data.forEach(shift => {
+        const duration = shiftDurationMinutes(shift.heure_debut, shift.heure_fin);
+        if (duration > 0) totalPlannedMinutes += duration;
         const agent = agentsResult.data.find(a => String(a.id) === String(shift.agent_id));
         const site = sitesResult.data.find(x => String(x.id) === String(shift.site_id));
         const item = document.createElement("div");
         item.className = "item";
-        item.textContent = [shift.date_vacation, (shift.heure_debut || "").slice(0,5) + "–" + (shift.heure_fin || "").slice(0,5), agent ? [agent.Prenom, agent.nom].filter(Boolean).join(" ") : "Agent", site ? site.Nom : "Site", shift.statut || "prévue"].filter(Boolean).join(" — ");
+        item.textContent = [shift.date_vacation, (shift.heure_debut || "").slice(0,5) + "–" + (shift.heure_fin || "").slice(0,5), duration > 0 ? formatDuration(duration) : "", agent ? [agent.Prenom, agent.nom].filter(Boolean).join(" ") : "Agent", site ? site.Nom : "Site", shift.statut || "prévue"].filter(Boolean).join(" — ");
         $("planningList").appendChild(item);
       });
 
+      $("plannedHours").textContent = formatDuration(totalPlannedMinutes);
       status("VIGENTRA PRO connecté à Supabase.");
     } catch (error) {
       showError(error);
