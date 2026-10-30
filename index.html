@@ -324,6 +324,25 @@
           if (days < 0) item.textContent += " — ALERTE : carte expirée";
           else if (days <= 30) item.textContent += " — ALERTE : expiration dans " + days + " jour(s)";
         }
+        const controls = document.createElement("div");
+        controls.className = "module-grid no-print";
+        const edit = document.createElement("button");
+        edit.type = "button"; edit.textContent = "Modifier";
+        edit.onclick = async () => { try {
+          const name = prompt("Nom et prénom", agent.nom || ""); if (name === null) return;
+          if (!name.trim()) throw new Error("Le nom est obligatoire.");
+          const email = prompt("E-mail", agent.Email || ""); if (email === null) return;
+          const phone = prompt("Téléphone", agent["Téléphone"] || ""); if (phone === null) return;
+          const qualification = prompt("Qualification", agent.qualification || ""); if (qualification === null) return;
+          const card = prompt("Numéro de carte professionnelle", agent.numero_carte_pro || ""); if (card === null) return;
+          const expiry = prompt("Expiration (AAAA-MM-JJ)", agent.expiration_carte_pro || ""); if (expiry === null) return;
+          const user = await requireUser();
+          const {error} = await db.from("agents").update({nom:name.trim(),Email:email.trim()||null,"Téléphone":phone.trim()||null,qualification:qualification.trim()||null,numero_carte_pro:card.trim()||null,expiration_carte_pro:expiry||null}).eq("id",agent.id).eq("user_id",user.id);
+          if(error) throw error; status("Agent modifié."); await refreshData();
+        } catch(e) { showError(e); } };
+        const del = document.createElement("button"); del.type="button"; del.className="danger"; del.textContent="Supprimer";
+        del.onclick = async () => { if(!confirm("Supprimer ce dossier agent ?")) return; try { const u=await requireUser(); const {error}=await db.from("agents").delete().eq("id",agent.id).eq("user_id",u.id); if(error) throw error; status("Agent supprimé."); await refreshData(); } catch(e) { showError(e); } };
+        controls.append(edit,del); item.appendChild(controls);
         $("agentsList").appendChild(item);
       });
 
@@ -344,7 +363,12 @@
         const item = document.createElement("div");
         item.className = "item";
         item.textContent = site.Nom;
-        $("sitesList").appendChild(item);
+        const controls = document.createElement("div"); controls.className="module-grid no-print";
+        const edit = document.createElement("button"); edit.type="button"; edit.textContent="Modifier";
+        edit.onclick=async()=>{try{const name=prompt("Nom du site",site.Nom||"");if(name===null)return;if(!name.trim())throw new Error("Le nom est obligatoire.");const u=await requireUser();const {error}=await db.from("Site").update({Nom:name.trim()}).eq("id",site.id).eq("user_id",u.id);if(error)throw error;status("Site modifié.");await refreshData()}catch(e){showError(e)}};
+        const del=document.createElement("button");del.type="button";del.className="danger";del.textContent="Supprimer";
+        del.onclick=async()=>{if(!confirm("Supprimer ce site ?"))return;try{const u=await requireUser();const {error}=await db.from("Site").delete().eq("id",site.id).eq("user_id",u.id);if(error)throw error;status("Site supprimé.");await refreshData()}catch(e){showError(e)}};
+        controls.append(edit,del);item.appendChild(controls);$("sitesList").appendChild(item);
       });
 
       $("planningList").replaceChildren();
@@ -357,7 +381,9 @@
         const item = document.createElement("div");
         item.className = "item";
         item.textContent = [shift.date_vacation, (shift.heure_debut || "").slice(0,5) + "–" + (shift.heure_fin || "").slice(0,5), duration > 0 ? formatDuration(duration) : "", agent ? [agent.Prenom, agent.nom].filter(Boolean).join(" ") : "Agent", site ? site.Nom : "Site", shift.statut || "prévue"].filter(Boolean).join(" — ");
-        $("planningList").appendChild(item);
+        const del=document.createElement("button");del.type="button";del.className="danger no-print";del.textContent="Supprimer la vacation";
+        del.onclick=async()=>{if(!confirm("Supprimer cette vacation ?"))return;try{const u=await requireUser();const {error}=await db.from("planning").delete().eq("id",shift.id).eq("user_id",u.id);if(error)throw error;status("Vacation supprimée.");await refreshData()}catch(e){showError(e)}};
+        item.appendChild(del);$("planningList").appendChild(item);
       });
 
       $("plannedHours").textContent = formatDuration(totalPlannedMinutes);
