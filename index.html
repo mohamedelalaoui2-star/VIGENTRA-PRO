@@ -100,14 +100,12 @@
   <header>
     <h1>VIGENTRA PRO</h1>
     <div>Gestion professionnelle de sécurité privée</div>
-    <p id="status" class="status">Configuration requise</p>
+    <p id="status" class="status">Connexion Supabase intégrée.</p>
   </header>
 
   <section class="card" id="loginCard">
     <h2>Connexion</h2>
-    <input id="configUrl" placeholder="https://vdoolfdxtqgjqzltxloo.supabase.co">
-    <input id="configKey" placeholder="sb_publishable_KU1Rdv08vpOfvNxdCqno8Q_AN49L-Pd">
-    <button id="connectBtn">Connecter Supabase</button>
+    <p class="muted">Connexion au projet VIGENTRA PRO déjà configurée. Tu n’as pas besoin de saisir l’URL ni la clé publique.</p>
     <hr>
     <input id="loginEmail" type="email" placeholder="Adresse e-mail">
     <input id="loginPassword" type="password" placeholder="Mot de passe">
@@ -161,6 +159,8 @@
 (() => {
   let db = null;
   let busy = false;
+  const SUPABASE_URL = "https://pqpoxbsudbydsppqoxon.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_H-zHZU7v1uIwLec4CkDWow_5ZtK9gPf";
 
   const $ = id => document.getElementById(id);
   const status = message => { $("status").textContent = message; };
@@ -176,15 +176,11 @@
   }
 
   async function connect() {
-    const url = $("configUrl").value.trim().replace(/\/$/, "");
-    const key = $("configKey").value.trim();
-
-    if (!validConfig(url, key)) {
-      status("Vérifie l'URL Supabase et la clé publique.");
+    if (!window.supabase?.createClient) {
+      status("Erreur : la bibliothèque Supabase n’a pas pu être chargée. Vérifie ta connexion Internet puis recharge la page.");
       return;
     }
-
-    db = window.supabase.createClient(url, key);
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
     status("Supabase configuré. Connecte-toi à ton compte.");
   }
 
@@ -403,7 +399,7 @@
     }
   }
 
-  $("connectBtn").addEventListener("click", connect);
+
   $("loginBtn").addEventListener("click", () => login(false));
   $("signupBtn").addEventListener("click", () => login(true));
   $("addAgentBtn").addEventListener("click", addAgent);
@@ -422,10 +418,7 @@
     }
   });
 
-  $("configUrl").value = "";
-  $("configKey").value = "";
-
-  status("Entre l'URL et la clé publique de Supabase.");
+  connect();
 })();
 </script>
 </body>
