@@ -82,6 +82,15 @@
     #agentCount, #siteCount { color: var(--gold); font-size: 23px; }
     hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
     .hidden { display: none !important; }
+    .module-card { grid-column:1/-1; }
+    .module-nav { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px; }
+    .module-nav button { margin:0;min-height:44px;padding:9px;font-size:13px; }
+    .module-nav button.active { background:linear-gradient(135deg,#d7b778,#9e7a3d);color:#101827; }
+    #moduleContent input,#moduleContent select,#moduleContent textarea { display:block;width:100%;min-height:44px;padding:11px;margin:8px 0;border:1px solid rgba(148,163,184,.23);border-radius:10px;background:#091221;color:var(--text);font:inherit; }
+    #moduleContent textarea { min-height:80px; }
+    #moduleContent label { display:block;margin-top:9px;color:#c5d1e2;font-size:13px; }
+    .muted { color:var(--muted); }
+    @media(max-width:420px){.module-nav{grid-template-columns:repeat(2,minmax(0,1fr));}}
     small { color: var(--muted); }
     @media (min-width: 700px) {
       body { padding: 36px 24px 54px; }
@@ -159,7 +168,19 @@
       <p>Heures planifiées affichées : <strong id="plannedHours">0 h</strong></p>
       <div id="planningList"></div>
     </section>
-  </main>
+  
+    <section class="card module-card">
+      <h2>Gestion opérationnelle</h2>
+      <div class="module-nav">
+        <button type="button" data-module="journal">Main courante</button>
+        <button type="button" data-module="pointage">Pointage</button>
+        <button type="button" data-module="indispo">Indisponibilités</button>
+        <button type="button" data-module="rondes">Rondes</button>
+        <button type="button" data-module="finance">Factures & charges</button>
+        <button type="button" data-module="exports">Exports CSV</button>
+      </div><div id="moduleContent"><p class="muted">Choisis un module ci-dessus.</p></div>
+    </section>
+</main>
 
 <script>
 (() => {
@@ -444,7 +465,54 @@
   }
 
 
-  $("loginBtn").addEventListener("click", () => login(false));
+
+  const mc = $("moduleContent");
+  const esc = v => String(v ?? "").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
+  const eur = v => new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"}).format(Number(v||0));
+  const inp=(l,id,t="text",p="")=>'<label>'+l+'</label><input id="'+id+'" type="'+t+'" placeholder="'+p+'">';
+  const ta=(l,id)=>'<label>'+l+'</label><textarea id="'+id+'"></textarea>';
+  const sel=(l,id,opts)=>'<label>'+l+'</label><select id="'+id+'">'+opts.map(o=>'<option value="'+esc(o.v)+'">'+esc(o.l)+'</option>').join("")+'</select>';
+  const btn=(id,l)=>'<button id="'+id+'" type="button">'+l+'</button>';
+  async function rows(t,ord="created_at"){const u=await requireUser();let q=db.from(t).select("*").eq("user_id",u.id);if(ord)q=q.order(ord,{ascending:false});const {data,error}=await q.limit(100);if(error)throw error;return data||[];}
+  async function save(t,r,msg){const u=await requireUser();const {error}=await db.from(t).insert({...r,user_id:u.id});if(error)throw error;status(msg);}
+  const list=(rs,fn)=>rs.length?rs.map(r=>'<div class="item">'+fn(r)+'</div>').join(""):'<p class="muted">Aucun enregistrement.</p>';
+  async function openModule(n){
+    document.querySelectorAll("[data-module]").forEach(b=>b.classList.toggle("active",b.dataset.module===n));
+    try {
+      if(n==="journal"){
+        const [a,s,r]=await Promise.all([rows("agents","nom"),rows("Site","Nom"),rows("main_courante")]);
+        mc.innerHTML='<h2>Main courante numérique</h2>'+sel("Type","jt",[{v:"information",l:"Information"},{v:"incident",l:"Incident"},{v:"consigne",l:"Consigne"},{v:"anomalie",l:"Anomalie"}])+inp("Titre","jtitle")+ta("Description","jdesc")+sel("Priorité","jp",[{v:"basse",l:"Basse"},{v:"normale",l:"Normale"},{v:"haute",l:"Haute"},{v:"urgente",l:"Urgente"}])+sel("Agent","ja",[{v:"",l:"Non attribué"},...a.map(x=>({v:x.id,l:[x.Prenom,x.nom].filter(Boolean).join(" ")}))])+sel("Site","js",[{v:"",l:"Non attribué"},...s.map(x=>({v:x.id,l:x.Nom}))])+btn("jbtn","Enregistrer")+'<h3>Historique</h3>'+list(r,x=>'<b>'+esc(x.type)+' · '+esc(x.titre)+'</b><br>'+esc(x.created_at?.slice(0,16).replace("T"," "))+' · '+esc(x.priorite)+'<br>'+esc(x.description));
+        $("jbtn").onclick=async()=>{try{if(!$("jtitle").value.trim()||!$("jdesc").value.trim())throw Error("Renseigne le titre et la description.");await save("main_courante",{type:$("jt").value,titre:$("jtitle").value.trim(),description:$("jdesc").value.trim(),priorite:$("jp").value,agent_id:$("ja").value||null,site_id:$("js").value||null},"Main courante enregistrée.");await openModule(n)}catch(e){showError(e)}};
+      } else if(n==="pointage"){
+        const [a,s,r]=await Promise.all([rows("agents","nom"),rows("Site","Nom"),rows("pointages","pointage_at")]);
+        mc.innerHTML='<h2>Pointage</h2>'+sel("Agent","pa",a.map(x=>({v:x.id,l:[x.Prenom,x.nom].filter(Boolean).join(" ")})))+sel("Site","ps",s.map(x=>({v:x.id,l:x.Nom})))+sel("Action","pt",[{v:"debut",l:"Début de service"},{v:"fin",l:"Fin de service"}])+ta("Note facultative","pn")+btn("pbtn","Enregistrer le pointage")+'<h3>Historique récent</h3>'+list(r,x=>'<b>'+esc(x.type==="debut"?"Début":"Fin")+'</b> · '+esc(x.pointage_at?.slice(0,16).replace("T"," "))+'<br>Agent #'+esc(x.agent_id)+' · site #'+esc(x.site_id)+(x.note?'<br>'+esc(x.note):""));
+        $("pbtn").onclick=async()=>{try{if(!$("pa").value||!$("ps").value)throw Error("Choisis un agent et un site.");await save("pointages",{agent_id:Number($("pa").value),site_id:Number($("ps").value),type:$("pt").value,note:$("pn").value.trim()||null,methode:"bouton"},"Pointage enregistré.");await openModule(n)}catch(e){showError(e)}};
+      } else if(n==="indispo"){
+        const [a,r]=await Promise.all([rows("agents","nom"),rows("indisponibilites","date_debut")]);
+        mc.innerHTML='<h2>Indisponibilités des agents</h2>'+sel("Agent","ia",a.map(x=>({v:x.id,l:[x.Prenom,x.nom].filter(Boolean).join(" ")})))+inp("Date de début","id1","date")+inp("Date de fin","id2","date")+inp("Motif","im","text","Congé, repos, formation…")+btn("ibtn","Enregistrer")+'<h3>Enregistrées</h3>'+list(r,x=>'<b>Agent #'+esc(x.agent_id)+'</b> · '+esc(x.date_debut)+' → '+esc(x.date_fin)+'<br>'+esc(x.motif));
+        $("ibtn").onclick=async()=>{try{if(!$("ia").value||!$("id1").value||!$("id2").value||$("id2").value<$("id1").value)throw Error("Vérifie l’agent et les dates.");await save("indisponibilites",{agent_id:Number($("ia").value),date_debut:$("id1").value,date_fin:$("id2").value,motif:$("im").value.trim()||"Indisponibilité",actif:true},"Indisponibilité enregistrée.");await openModule(n)}catch(e){showError(e)}};
+      } else if(n==="rondes"){
+        const [s,a,p,r]=await Promise.all([rows("Site","Nom"),rows("agents","nom"),rows("ronde_points"),rows("ronde_passages","passage_at")]);
+        mc.innerHTML='<h2>Rondes de sécurité</h2><h3>Créer un point de contrôle</h3>'+sel("Site","rs",s.map(x=>({v:x.id,l:x.Nom})))+inp("Nom du point","rn")+inp("Code QR facultatif","rc")+btn("rbtn","Créer le point")+'<h3>Enregistrer un passage</h3>'+sel("Point","rp",p.map(x=>({v:x.id,l:x.nom+" — site #"+x.site_id})))+sel("Agent","ra",a.map(x=>({v:x.id,l:[x.Prenom,x.nom].filter(Boolean).join(" ")})))+ta("Observation","ro")+btn("rpbtn","Confirmer le passage")+'<h3>Points</h3>'+list(p,x=>'<b>'+esc(x.nom)+'</b> · site #'+esc(x.site_id))+'<h3>Passages récents</h3>'+list(r,x=>'<b>Point #'+esc(x.point_id)+'</b> · agent #'+esc(x.agent_id)+'<br>'+esc(x.passage_at?.slice(0,16).replace("T"," "))+(x.note?'<br>'+esc(x.note):""));
+        $("rbtn").onclick=async()=>{try{if(!$("rs").value||!$("rn").value.trim())throw Error("Choisis le site et le nom du point.");await save("ronde_points",{site_id:Number($("rs").value),nom:$("rn").value.trim(),code:$("rc").value.trim()||null,actif:true},"Point de ronde créé.");await openModule(n)}catch(e){showError(e)}};
+        $("rpbtn").onclick=async()=>{try{if(!$("rp").value||!$("ra").value)throw Error("Choisis un point et un agent.");await save("ronde_passages",{point_id:Number($("rp").value),agent_id:Number($("ra").value),note:$("ro").value.trim()||null},"Passage de ronde enregistré.");await openModule(n)}catch(e){showError(e)}};
+      } else if(n==="finance"){
+        const [f,c]=await Promise.all([rows("factures"),rows("charges_entreprise","date_charge")]);
+        const ht=f.filter(x=>x.statut!=="annulee").reduce((a,x)=>a+Number(x.total_ht||0),0),paid=f.filter(x=>x.statut==="payee").reduce((a,x)=>a+Number(x.total_ttc||0),0),cost=c.reduce((a,x)=>a+Number(x.montant_ht||0),0);
+        mc.innerHTML='<h2>Finances TEA</h2><div class="item">Facturation HT : <b>'+eur(ht)+'</b> · Payé TTC : <b>'+eur(paid)+'</b> · Charges HT : <b>'+eur(cost)+'</b> · Écart indicatif : <b>'+eur(ht-cost)+'</b></div><h3>Créer une facture</h3>'+inp("Numéro","fn","text","TEA-2026-001")+inp("Client","fc")+inp("Description","fd")+sel("Type","ft",[{v:"heures",l:"À l’heure"},{v:"forfait",l:"Forfait"}])+inp("Quantité","fq","number")+inp("Prix unitaire HT (€)","fp","number")+inp("TVA (%)","fv","number")+inp("Échéance","fe","date")+btn("fbtn","Enregistrer la facture")+'<h3>Factures</h3>'+list(f,x=>'<b>'+esc(x.numero)+' · '+esc(x.client_nom)+'</b><br>'+esc(x.description)+' · '+eur(x.total_ttc)+' TTC · '+esc(x.statut))+'<hr><h3>Ajouter une charge</h3>'+inp("Date","cd","date")+sel("Catégorie","cc",[{v:"salaires",l:"Salaires"},{v:"carburant",l:"Carburant"},{v:"materiel",l:"Matériel"},{v:"assurance",l:"Assurance"},{v:"formation",l:"Formation"},{v:"autre",l:"Autre"}])+inp("Description","cdesc")+inp("Montant HT (€)","cam","number")+btn("cbtn","Enregistrer la charge")+'<h3>Charges</h3>'+list(c,x=>'<b>'+esc(x.date_charge)+' · '+esc(x.categorie)+'</b> · '+esc(x.description)+' · '+eur(x.montant_ht));
+        $("fbtn").onclick=async()=>{try{const q=Number($("fq").value),p=Number($("fp").value),v=Number($("fv").value||20);if(!$("fn").value.trim()||!$("fc").value.trim()||!(q>0)||p<0||v<0||v>100)throw Error("Vérifie numéro, client, quantité, prix et TVA.");const total=q*p,tva=total*v/100;await save("factures",{numero:$("fn").value.trim(),client_nom:$("fc").value.trim(),description:$("fd").value.trim(),type_facturation:$("ft").value,quantite:q,prix_unitaire_ht:p,taux_tva:v,total_ht:total,total_tva:tva,total_ttc:total+tva,statut:"brouillon",echeance:$("fe").value||null},"Facture créée en brouillon.");await openModule(n)}catch(e){showError(e)}};
+        $("cbtn").onclick=async()=>{try{const a=Number($("cam").value);if(!$("cdesc").value.trim()||!(a>=0))throw Error("Renseigne description et montant.");await save("charges_entreprise",{date_charge:$("cd").value||new Date().toISOString().slice(0,10),categorie:$("cc").value,description:$("cdesc").value.trim(),montant_ht:a},"Charge enregistrée.");await openModule(n)}catch(e){showError(e)}};
+      } else if(n==="exports"){
+        const [a,s,p,f,c,j]=await Promise.all([rows("agents","nom"),rows("Site","Nom"),rows("planning","date_vacation"),rows("factures"),rows("charges_entreprise","date_charge"),rows("main_courante")]);
+        const csv=rs=>{if(!rs.length)return "";const keys=[...new Set(rs.flatMap(x=>Object.keys(x)))];return [keys.join(";"),...rs.map(x=>keys.map(k=>'"'+String(x[k]??"").replace(/"/g,'""')+'"').join(";"))].join("\r\n");};
+        const dl=(name,rs)=>{const u=URL.createObjectURL(new Blob(["\ufeff"+csv(rs)],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=u;a.download="vigentra-"+name+".csv";a.click();URL.revokeObjectURL(u)};
+        mc.innerHTML='<h2>Exports CSV</h2><p>Export des 100 derniers enregistrements de chaque module vers Excel ou Numbers.</p>'+btn("ea","Exporter agents")+btn("es","Exporter sites")+btn("ep","Exporter planning")+btn("ef","Exporter factures")+btn("ec","Exporter charges")+btn("ej","Exporter main courante");
+        [["ea","agents",a],["es","sites",s],["ep","planning",p],["ef","factures",f],["ec","charges",c],["ej","main-courante",j]].forEach(([id,name,data])=>$(id).onclick=()=>dl(name,data));
+      }
+    } catch(e){showError(e);mc.innerHTML='<div class="item">Erreur de chargement : '+esc(e.message)+'</div>';}
+  }
+  document.querySelectorAll("[data-module]").forEach(b=>b.addEventListener("click",()=>openModule(b.dataset.module)));
+\n  $("loginBtn").addEventListener("click", () => login(false));
   $("signupBtn").addEventListener("click", () => login(true));
   $("addAgentBtn").addEventListener("click", addAgent);
   $("addSiteBtn").addEventListener("click", addSite);
