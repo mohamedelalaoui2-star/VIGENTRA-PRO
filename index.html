@@ -79,6 +79,7 @@
       border-radius: 10px; border: 1px solid rgba(79,140,255,.2);
       background: rgba(37,99,235,.08); color: #a9caff; font-size: 13px; overflow-wrap: anywhere;
     }
+    #status[hidden] { display:none !important; }
     .item {
       padding: 14px; background: linear-gradient(135deg, #0b1423, #101b2d);
       border: 1px solid var(--line); margin-top: 9px; border-radius: 12px;
@@ -180,7 +181,7 @@
       </svg>
     </div><div class="brand-copy"><h1><span>VIGENTRA</span> <em>PRO</em></h1><div class="brand-sub">TEA SÉCURITÉ PRIVÉE</div><div class="brand-motto">PLANIFIER&nbsp; | &nbsp;GÉRER&nbsp; | &nbsp;SÉCURISER</div></div></div>
     <button id="installHelpBtn" type="button">＋ Installer sur mon iPhone</button>
-    <p id="status" class="status">Connexion Supabase intégrée.</p>
+    <p id="status" class="status" hidden></p>
   </header>
 
   <section class="card" id="loginCard">
