@@ -15,9 +15,9 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:1
 <div class="app">
 <header class="top"><div class="brand"><div class="mark">VP</div><div><div class="eyebrow">Gestion opérationnelle</div><h1>VIGENTRA PRO</h1><small>TEA SÉCURITÉ PRIVÉE</small></div></div><span class="tag">VERSION DE TRAVAIL</span></header>
 <section id="loginView" class="login">
-<div class="panel"><div class="eyebrow">Connexion sécurisée</div><h2 style="font-size:22px;margin-top:5px">Accéder à VIGENTRA PRO</h2><p class="note">Cette version vise le projet Supabase Planning-vigentra. La clé publique est demandée à l'utilisateur et n'est pas intégrée au code. Ne colle jamais une clé service_role ou secrète.</p>
+<div class="panel"><div class="eyebrow">Connexion sécurisée</div><h2 style="font-size:22px;margin-top:5px">Accéder à VIGENTRA PRO</h2><p class="note">Cette version vise le projet Supabase Planning-vigentra. La clé publique est mémorisée sur cet appareil après saisie pour éviter de la redemander. Ne colle jamais une clé service_role ou secrète.</p>
 <div class="field"><label for="supabaseUrl">URL Supabase</label><input id="supabaseUrl" type="url" value="https://pqpoxbsudbydsppqoxon.supabase.co" autocomplete="url"></div>
-<div class="field" style="margin-top:10px"><label for="supabaseKey">Clé publique (publishable / anon)</label><input id="supabaseKey" type="password" placeholder="Colle ici la clé publique" autocomplete="off"></div>
+<div class="field" style="margin-top:10px"><label for="supabaseKey">Clé publique (publishable / anon)</label><input id="supabaseKey" type="password" placeholder="Colle ici la clé publique" autocomplete="off"><small>Conservée localement sur cet appareil. Le mot de passe n’est jamais mémorisé par cette option.</small></div>
 <div class="field" style="margin-top:10px"><label for="email">Adresse e-mail</label><input id="email" type="email" autocomplete="username"></div>
 <div class="field" style="margin-top:10px"><label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password"></div>
 <div class="actions"><button class="btn primary" id="connectLogin">Se connecter</button><button class="btn" id="signup">Créer un compte</button></div>
@@ -51,6 +51,9 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:1
 "use strict";
 var db=null,user=null,workspaceOwner=null,cache={agents:[],sites:[],planning:[],pointages:[],qualifications:[],journal:[],factures:[],charges:[]},busy=false;
 function $(id){return document.getElementById(id)}
+var CONFIG_KEY="vigentra.supabase.config.v1";
+try{var savedConfig=JSON.parse(localStorage.getItem(CONFIG_KEY)||"null");if(savedConfig&&savedConfig.url&&savedConfig.key){$("supabaseUrl").value=savedConfig.url;$("supabaseKey").value=savedConfig.key}}catch(e){}
+function rememberConfig(url,key){try{localStorage.setItem(CONFIG_KEY,JSON.stringify({url:url,key:key}))}catch(e){notify("La clé ne peut pas être mémorisée dans ce navigateur. Tu devras la saisir à nouveau.","")}}
 function setStatus(id,msg,kind){var el=$(id);if(el){el.textContent=msg;el.className="status"+(kind?" "+kind:"")}if(id==="loginStatus"&&$("workspace")&&!$("workspace").classList.contains("hidden")){var w=$("workspaceStatus");if(w){w.textContent=msg;w.className="status"+(kind?" "+kind:"")}}}
 function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function fmtDate(v){if(!v)return "—";var d=new Date(v+"T00:00:00");return isNaN(d.getTime())?esc(v):d.toLocaleDateString("fr-FR")}
@@ -72,7 +75,7 @@ async function ensureUser(){if(!db)throw new Error("Configure Supabase puis conn
 async function connectAndLogin(create){var url=$("supabaseUrl").value.trim().replace(/\/+$/,""),key=$("supabaseKey").value.trim(),email=$("email").value.trim(),password=$("password").value;
 if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)||key.length<20){notify("Vérifie l'URL et la clé publique Supabase. N'utilise jamais une clé secrète.", "error");return}
 if(!email||password.length<6){notify("Entre un e-mail valide et un mot de passe d'au moins 6 caractères.","error");return}
-try{db=window.supabase.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});setStatus("loginStatus","Connexion en cours…");
+try{rememberConfig(url,key);db=window.supabase.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});setStatus("loginStatus","Connexion en cours…");
 var r=create?await db.auth.signUp({email:email,password:password}):await db.auth.signInWithPassword({email:email,password:password});if(r.error)throw r.error;
 if(create&&!r.data.session){notify("Compte créé. Vérifie ton e-mail si la confirmation est activée, puis connecte-toi.");return}
 await startWorkspace()}catch(e){notify("Connexion impossible : "+(e.message||String(e)),"error")}}
