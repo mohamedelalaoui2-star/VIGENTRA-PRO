@@ -24,6 +24,12 @@ Télécharger ou ouvrir `maquette.html` dans Safari, Chrome ou sur ordinateur. L
 5. Garder les fonctions de production séparées de cette maquette jusqu’à validation.
 6. Priorité aux services gratuits, sans API IA payante obligatoire.
 
+## Vercel — aperçu de test
+- Utiliser Vercel pour un aperçu isolé de la branche de travail, après autorisation d'accès à l'équipe et vérification du projet existant.
+- Ne pas relier ni déployer la branche de travail sur le domaine de production sans validation explicite.
+- Avant publication, vérifier les variables d'environnement Preview, le projet Supabase cible et les règles RLS avec des comptes de test.
+- Aucun token Vercel ni clé Supabase secrète ne doit être ajouté au dépôt.
+
 ## État
 - [x] Dossier projet créé.
 - [x] Maquette de démonstration responsive.
