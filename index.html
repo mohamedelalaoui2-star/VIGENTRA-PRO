@@ -216,8 +216,27 @@
       status("Erreur : la bibliothèque Supabase n’a pas pu être chargée. Vérifie ta connexion Internet puis recharge la page.");
       return;
     }
-    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-    status("Supabase configuré. Connecte-toi à ton compte.");
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+    const { data, error } = await db.auth.getSession();
+    if (error) throw error;
+    if (data.session?.user) {
+      status("Session retrouvée. Chargement de VIGENTRA PRO…");
+      await loadApp();
+    } else {
+      status("Supabase configuré. Connecte-toi à ton compte.");
+    }
+    db.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        $("app").classList.add("hidden");
+        $("loginCard").classList.remove("hidden");
+        status("Déconnecté.");
+      } else if (event === "SIGNED_IN" && session?.user) {
+        $("loginCard").classList.add("hidden");
+        $("app").classList.remove("hidden");
+      }
+    });
   }
 
   async function login(createAccount = false) {
@@ -450,6 +469,32 @@
     busy = true;
     try {
       const user = await requireUser();
+      const startAt = new Date(date + "T" + start + ":00");
+      const endAt = new Date(date + "T" + end + ":00");
+      if (endAt <= startAt) endAt.setDate(endAt.getDate() + 1);
+      const previousDate = new Date(date + "T12:00:00");
+      previousDate.setDate(previousDate.getDate() - 1);
+      const nextDate = new Date(date + "T12:00:00");
+      nextDate.setDate(nextDate.getDate() + 1);
+      const ymd = d => d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+      const { data: existingShifts, error: shiftsError } = await db.from("planning")
+        .select("id,agent_id,date_vacation,heure_debut,heure_fin,site_id")
+        .eq("user_id", user.id)
+        .eq("agent_id", Number(agentId))
+        .gte("date_vacation", ymd(previousDate))
+        .lte("date_vacation", ymd(nextDate));
+      if (shiftsError) throw shiftsError;
+      const overlaps = (existingShifts || []).find(shift => {
+        const otherStart = new Date(shift.date_vacation + "T" + String(shift.heure_debut).slice(0,8));
+        const otherEnd = new Date(shift.date_vacation + "T" + String(shift.heure_fin).slice(0,8));
+        if (otherEnd <= otherStart) otherEnd.setDate(otherEnd.getDate() + 1);
+        return startAt < otherEnd && otherStart < endAt;
+      });
+      if (overlaps) {
+        const overlapSiteResult = await db.from("Site").select("Nom").eq("id", overlaps.site_id).eq("user_id", user.id).maybeSingle();
+        if (overlapSiteResult.error) throw overlapSiteResult.error;
+        throw new Error("Vacation refusée : cet agent a déjà une vacation qui chevauche cet horaire" + (overlapSiteResult.data?.Nom ? " (site : " + overlapSiteResult.data.Nom + ")" : "") + ".");
+      }
       const { error } = await db.from("planning").insert({
         user_id: user.id,
         agent_id: Number(agentId),
