@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101827">
+  <meta name="theme-color" content="#101827">\n  <meta name="apple-mobile-web-app-capable" content="yes">\n  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n  <link rel="manifest" href="/manifest.webmanifest">\n  <link rel="icon" href="/icon.svg" type="image/svg+xml">\n  <link rel="apple-touch-icon" href="/icon.svg">
   <title>VIGENTRA PRO</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -117,7 +117,7 @@
 <body>
   <header>
     <h1>VIGENTRA PRO</h1>
-    <div>Gestion professionnelle de sécurité privée</div>
+    <div>Gestion professionnelle de sécurité privée</div>\n    <button id="installHelpBtn" type="button">Installer sur mon iPhone</button>
     <p id="status" class="status">Connexion Supabase intégrée.</p>
   </header>
 
@@ -560,7 +560,7 @@
     } catch(e){showError(e);mc.innerHTML='<div class="item">Erreur de chargement : '+esc(e.message)+'</div>';}
   }
   document.querySelectorAll("[data-module]").forEach(b=>b.addEventListener("click",()=>openModule(b.dataset.module)));
-\n  $("loginBtn").addEventListener("click", () => login(false));
+\n  $("installHelpBtn").addEventListener("click", () => alert("Pour installer VIGENTRA PRO sur iPhone : 1. Ouvre cette page dans Safari. 2. Appuie sur le bouton Partager. 3. Choisis « Sur l’écran d’accueil ». 4. Appuie sur Ajouter."));\n  $("loginBtn").addEventListener("click", () => login(false));
   $("signupBtn").addEventListener("click", () => login(true));
   $("addAgentBtn").addEventListener("click", addAgent);
   $("addSiteBtn").addEventListener("click", addSite);
