@@ -141,7 +141,7 @@
   </section>
 
   <main id="app" class="hidden">
-    <nav class="quick-menu" aria-label="Menu principal"><button type="button" data-scroll="dashboardCard">Tableau de bord</button><button type="button" data-scroll="agentsCard">Agents</button><button type="button" data-scroll="sitesCard">Sites</button><button type="button" data-scroll="planningCard">Planning</button><button type="button" data-scroll="operationsCard">Autres modules</button></nav>
+    <nav class="quick-menu" aria-label="Menu principal"><button type="button" data-scroll="dashboardCard">Tableau de bord</button><button type="button" data-scroll="agentsCard">Agents</button><button type="button" data-scroll="sitesCard">Sites</button><button type="button" data-scroll="planningCard">Planning</button><button type="button" data-module="journal">Main courante</button><button type="button" data-module="pointage">Pointage</button><button type="button" data-module="indispo">Indisponibilités</button><button type="button" data-module="rondes">Rondes</button><button type="button" data-module="clients">Clients</button><button type="button" data-module="contrats">Contrats</button><button type="button" data-module="devis">Devis</button><button type="button" data-module="finance">Factures & charges</button><button type="button" data-module="exports">Exports CSV</button><button type="button" data-module="equipe">Équipe & accès</button></nav>
     <section class="card" id="dashboardCard">
       <h2>Tableau de bord</h2>
       <p>Agents : <strong id="agentCount">0</strong></p>
@@ -657,7 +657,7 @@
       }
     } catch(e){showError(e);mc.innerHTML='<div class="item">Erreur de chargement : '+esc(e.message)+'</div>';}
   }
-  document.querySelectorAll("[data-module]").forEach(b=>b.addEventListener("click",()=>openModule(b.dataset.module)));
+  document.querySelectorAll("[data-module]").forEach(b=>b.addEventListener("click",()=>{openModule(b.dataset.module);document.querySelectorAll(".quick-menu [data-module]").forEach(x=>x.classList.toggle("active",x===b));}));
   document.querySelectorAll("[data-scroll]").forEach(b=>b.addEventListener("click",()=>{const target=document.getElementById(b.dataset.scroll);if(target){target.scrollIntoView({behavior:"smooth",block:"start"});document.querySelectorAll("[data-scroll]").forEach(x=>x.classList.toggle("active",x===b));}}));
 
   $("installHelpBtn").addEventListener("click", () => alert("Pour installer VIGENTRA PRO sur iPhone : 1. Ouvre cette page dans Safari. 2. Appuie sur le bouton Partager. 3. Choisis « Sur l’écran d’accueil ». 4. Appuie sur Ajouter."));
