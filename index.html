@@ -136,13 +136,37 @@
       header { padding: 21px 17px 17px; border-radius: 18px; }
       .card { padding: 17px; border-radius: 16px; }
     }
-  </style>
+  
+    /* VIGENTRA PRO — identité premium bleu nuit, or champagne et rouge signature */
+    body { max-width: 1320px; padding: 16px 12px 36px; background: radial-gradient(ellipse at 12% 0%,rgba(24,70,130,.2),transparent 35%),radial-gradient(ellipse at 94% 8%,rgba(155,30,42,.13),transparent 28%),#060a12; }
+    .brand-header { padding: 20px 18px 16px; border-color:rgba(215,183,120,.28); background:linear-gradient(120deg,rgba(13,22,37,.98),rgba(5,10,19,.98)); }
+    .brand-row { display:flex; align-items:center; gap:14px; position:relative; z-index:1; }
+    .brand-crest { width:76px; height:84px; flex:0 0 76px; display:grid; place-items:center; font-size:42px; color:#f4d58d; border:2px solid #d7b778; border-radius:42% 42% 48% 48%; background:linear-gradient(145deg,#17243a,#080d17); box-shadow:inset 0 0 0 4px rgba(215,183,120,.12),0 8px 20px rgba(0,0,0,.35); }
+    .brand-copy { min-width:0; }
+    .brand-header h1 { font-size:clamp(27px,7vw,43px); letter-spacing:.08em; line-height:1.08; margin:0; white-space:nowrap; }
+    .brand-header h1 span { color:#f1d18a; text-shadow:0 2px 14px rgba(215,183,120,.16); }
+    .brand-header h1 em { font-style:normal; color:#e0444d; }
+    .brand-sub { color:#d7b778; letter-spacing:.18em; font-size:clamp(9px,2.6vw,13px); font-weight:800; margin-top:8px; }
+    .brand-motto { color:#dce3ee; font-size:9px; letter-spacing:.12em; margin-top:10px; }
+    .brand-header #installHelpBtn { max-width:360px; margin-top:18px; background:linear-gradient(120deg,#b58b43,#f2d99d,#a47a36); color:#111827; border-color:rgba(255,230,165,.6); box-shadow:0 6px 22px rgba(215,183,120,.12); }
+    .quick-menu { position:sticky; top:5px; z-index:20; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; overflow:visible; padding:8px; margin-bottom:14px; border:1px solid rgba(215,183,120,.24); border-radius:17px; background:rgba(5,10,19,.96); backdrop-filter:blur(16px); box-shadow:0 12px 30px rgba(0,0,0,.28); }
+    .quick-menu button { min-width:0; width:100%; min-height:72px; margin:0; padding:9px 4px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:5px; border:1px solid rgba(215,183,120,.2); border-radius:11px; background:linear-gradient(155deg,#111b2b,#080e18); color:#edf2fa; box-shadow:none; font-size:10px; font-weight:650; line-height:1.2; white-space:normal; overflow-wrap:anywhere; }
+    .quick-menu .menu-icon { display:block; color:#e7c77e; font-size:25px; line-height:1; font-weight:500; text-shadow:0 0 12px rgba(215,183,120,.2); }
+    .quick-menu button.active, .quick-menu button:focus-visible { border-color:#e0444d; background:linear-gradient(150deg,rgba(134,27,39,.8),rgba(30,15,25,.96)); box-shadow:inset 0 0 0 1px rgba(239,68,68,.16),0 0 15px rgba(239,68,68,.12); outline:none; }
+    .quick-menu button.active .menu-icon { color:#f2d18b; }
+    .card { border-color:rgba(133,157,190,.19); background:linear-gradient(145deg,rgba(16,26,43,.98),rgba(8,14,24,.98)); }
+    h2 { color:#f3d28c; }
+    button { background:linear-gradient(135deg,#b58b43,#e5c47e,#997031); color:#111827; border-color:rgba(255,226,155,.28); box-shadow:0 6px 16px rgba(215,183,120,.1); }
+    button.danger { background:linear-gradient(135deg,#e0444d,#8e1d2c); color:#fff; }
+    .status { border-color:rgba(215,183,120,.2); }
+    @media (min-width:760px) { .quick-menu { grid-template-columns:repeat(7,minmax(0,1fr)); } .quick-menu button { min-height:86px; font-size:12px; } .quick-menu .menu-icon { font-size:29px; } .brand-header { padding:25px 28px 20px; } }
+    @media (max-width:360px) { .quick-menu { grid-template-columns:repeat(3,minmax(0,1fr)); } .brand-crest { width:60px;height:68px;flex-basis:60px;font-size:34px; } .brand-motto { letter-spacing:.06em;font-size:8px; } }
+</style>
 </head>
 <body>
-  <header>
-    <h1>VIGENTRA PRO</h1>
-    <div>Gestion professionnelle de sécurité privée</div>
-    <button id="installHelpBtn" type="button">Installer sur mon iPhone</button>
+  <header class="brand-header">
+    <div class="brand-row"><div class="brand-crest" aria-hidden="true">♌</div><div class="brand-copy"><h1><span>VIGENTRA</span> <em>PRO</em></h1><div class="brand-sub">TEA SÉCURITÉ PRIVÉE</div><div class="brand-motto">PLANIFIER&nbsp; | &nbsp;GÉRER&nbsp; | &nbsp;SÉCURISER</div></div></div>
+    <button id="installHelpBtn" type="button">＋ Installer sur mon iPhone</button>
     <p id="status" class="status">Connexion Supabase intégrée.</p>
   </header>
 
@@ -157,7 +181,7 @@
   </section>
 
   <main id="app" class="hidden">
-    <nav class="quick-menu" aria-label="Menu principal"><button type="button" data-scroll="dashboardCard">Tableau de bord</button><button type="button" data-scroll="agentsCard">Agents</button><button type="button" data-scroll="sitesCard">Sites</button><button type="button" data-scroll="planningCard">Planning</button><button type="button" data-module="journal">Main courante</button><button type="button" data-module="pointage">Pointage</button><button type="button" data-module="indispo">Indisponibilités</button><button type="button" data-module="rondes">Rondes</button><button type="button" data-module="clients">Clients</button><button type="button" data-module="contrats">Contrats</button><button type="button" data-module="devis">Devis</button><button type="button" data-module="finance">Factures & charges</button><button type="button" data-module="exports">Exports CSV</button><button type="button" data-module="equipe">Équipe & accès</button></nav>
+    <nav class="quick-menu" aria-label="Menu principal"><button type="button" data-scroll="dashboardCard"><span class="menu-icon">⌂</span><span>Tableau de bord</span></button><button type="button" data-scroll="agentsCard"><span class="menu-icon">♟</span><span>Agents</span></button><button type="button" data-scroll="sitesCard"><span class="menu-icon">⌖</span><span>Sites</span></button><button type="button" data-scroll="planningCard"><span class="menu-icon">▦</span><span>Planning</span></button><button type="button" data-module="journal"><span class="menu-icon">▤</span><span>Main courante</span></button><button type="button" data-module="pointage"><span class="menu-icon">◉</span><span>Pointage</span></button><button type="button" data-module="indispo"><span class="menu-icon">⊠</span><span>Indisponibilités</span></button><button type="button" data-module="rondes"><span class="menu-icon">⬡</span><span>Rondes</span></button><button type="button" data-module="clients"><span class="menu-icon">♧</span><span>Clients</span></button><button type="button" data-module="contrats"><span class="menu-icon">▣</span><span>Contrats</span></button><button type="button" data-module="devis"><span class="menu-icon">▧</span><span>Devis</span></button><button type="button" data-module="finance"><span class="menu-icon">◈</span><span>Factures & charges</span></button><button type="button" data-module="exports"><span class="menu-icon">▥</span><span>Exports CSV</span></button><button type="button" data-module="equipe"><span class="menu-icon">⚙</span><span>Équipe & accès</span></button></nav>
     <section class="card" id="dashboardCard">
       <h2>Tableau de bord</h2>
       <p>Agents : <strong id="agentCount">0</strong></p>
