@@ -341,6 +341,7 @@
       await requireUser();
       $("loginCard").classList.add("hidden");
       $("app").classList.remove("hidden");
+      showAppSection("dashboardCard");
       await refreshData();
     } catch (error) {
       showError(error);
