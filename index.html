@@ -660,6 +660,9 @@
         const a=interval(target);
         const all=[...shifts.filter(s=>String(s.agent_id)===String(agentId)),...proposed.filter(s=>String(s.agent_id)===String(agentId))];
         if(all.some(s=>{const b=interval(s);return a.start<b.end && b.start<a.end;})) return "chevauchement horaire";
+        const minimumRestMs=11*60*60*1000;
+        const insufficientRest=all.find(s=>{const b=interval(s);return (b.end<=a.start && a.start-b.end<minimumRestMs)||(a.end<=b.start && b.start-a.end<minimumRestMs);});
+        if(insufficientRest) return "repos minimum de 11 heures non respecté";
         const endKey=[a.end.getFullYear(),String(a.end.getMonth()+1).padStart(2,"0"),String(a.end.getDate()).padStart(2,"0")].join("-");
         if(unavailable.some(u=>String(u.agent_id)===String(agentId)&&u.date_debut<=endKey&&u.date_fin>=target.date_vacation)) return "indisponibilité déclarée";
         const agent=agents.find(x=>String(x.id)===String(agentId));
@@ -746,6 +749,17 @@
         const overlapSiteResult = await db.from("Site").select("Nom").eq("id", overlaps.site_id).eq("user_id", user.id).maybeSingle();
         if (overlapSiteResult.error) throw overlapSiteResult.error;
         throw new Error("Vacation refusée : cet agent a déjà une vacation qui chevauche cet horaire" + (overlapSiteResult.data?.Nom ? " (site : " + overlapSiteResult.data.Nom + ")" : "") + ".");
+      }
+      const minimumRestMs = 11 * 60 * 60 * 1000;
+      const insufficientRest = (existingShifts || []).find(shift => {
+        const otherStart = new Date(shift.date_vacation + "T" + String(shift.heure_debut).slice(0,8));
+        const otherEnd = new Date(shift.date_vacation + "T" + String(shift.heure_fin).slice(0,8));
+        if (otherEnd <= otherStart) otherEnd.setDate(otherEnd.getDate() + 1);
+        return (otherEnd <= startAt && startAt - otherEnd < minimumRestMs) ||
+          (endAt <= otherStart && otherStart - endAt < minimumRestMs);
+      });
+      if (insufficientRest) {
+        throw new Error("Vacation refusée : le repos minimum de 11 heures entre deux vacations ne serait pas respecté.");
       }
       const endDateKey = [endAt.getFullYear(), String(endAt.getMonth()+1).padStart(2,"0"), String(endAt.getDate()).padStart(2,"0")].join("-");
       const { data: unavailable, error: unavailableError } = await db.from("indisponibilites")
