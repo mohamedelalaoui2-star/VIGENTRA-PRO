@@ -356,16 +356,68 @@
     return data.user;
   }
 
+  async function loadAgentPortal(user, agent) {
+    const app = $("app");
+    app.querySelectorAll(".quick-menu, #dashboardCard, #agentsCard, #sitesCard, #planningCard, #operationsCard").forEach(node => node.classList.add("hidden"));
+    let portal = $("agentPortal");
+    if (!portal) {
+      portal = document.createElement("section");
+      portal.id = "agentPortal";
+      portal.className = "card";
+      app.prepend(portal);
+    }
+    const result = await db.from("planning").select("*").eq("agent_id", agent.id).order("date_vacation", {ascending:true}).limit(100);
+    if (result.error) throw result.error;
+    const shifts = result.data || [];
+    const ids = [...new Set(shifts.map(s => s.site_id).filter(Boolean))];
+    let siteMap = {};
+    if (ids.length) {
+      const sr = await db.from("Site").select("id,Nom,Adresse").in("id", ids);
+      if (sr.error) throw sr.error;
+      (sr.data || []).forEach(s => siteMap[s.id] = s);
+    }
+    const cards = shifts.map(s => {
+      const site = siteMap[s.site_id] || {};
+      return '<div class="item"><b>'+esc(s.date_vacation)+'</b> · '+esc(String(s.heure_debut||"").slice(0,5))+' – '+esc(String(s.heure_fin||"").slice(0,5))+'<p>'+esc(site.Nom || "Site non renseigné")+'</p><p class="muted">Planning en lecture seule.</p><div class="grid"><button type="button" data-agent-punch="debut" data-shift="'+esc(s.id)+'">Pointer début</button><button type="button" class="secondary" data-agent-punch="fin" data-shift="'+esc(s.id)+'">Pointer fin</button></div><label>Transmission main courante</label><textarea id="agentNote'+esc(s.id)+'" placeholder="Événement ou consigne"></textarea><button type="button" data-agent-log="'+esc(s.id)+'">Enregistrer la transmission</button></div>';
+    }).join("");
+    portal.innerHTML = '<div class="dashboard-head"><div><p class="eyebrow">ESPACE AGENT</p><h2>Bonjour '+esc([agent.Prenom,agent.nom].filter(Boolean).join(" "))+'</h2><p class="muted">Planning non modifiable · Pointage · Main courante</p></div><button id="agentLogoutBtn" class="danger" type="button">Se déconnecter</button></div><h3>Mon planning</h3>'+(cards || '<p class="muted">Aucune vacation affectée.</p>')+'<h3>Mes transmissions récentes</h3><div id="agentLogs"></div>';
+    const lr = await db.from("main_courante").select("titre,description,priorite,created_at").eq("agent_id", agent.id).order("created_at", {ascending:false}).limit(20);
+    if (lr.error) throw lr.error;
+    $("agentLogs").innerHTML = (lr.data || []).map(x => '<div class="item"><b>'+esc(x.titre)+'</b> · '+esc(x.priorite||"normale")+'<p>'+esc(x.description)+'</p><small>'+esc(String(x.created_at||"").slice(0,16).replace("T"," "))+'</small></div>').join("") || '<p class="muted">Aucune transmission enregistrée.</p>';
+    portal.querySelectorAll("[data-agent-punch]").forEach(b => b.onclick = async () => {
+      try {
+        const s = shifts.find(x => String(x.id) === b.dataset.shift);
+        if (!s) throw new Error("Vacation introuvable.");
+        const r = await db.from("pointages").insert({user_id:agent.user_id,agent_id:agent.id,site_id:s.site_id,planning_id:s.id,type:b.dataset.agentPunch,methode:"interface_agent"});
+        if (r.error) throw r.error;
+        status(b.dataset.agentPunch === "debut" ? "Début de service pointé." : "Fin de service pointée.");
+      } catch (e) { showError(e); }
+    });
+    portal.querySelectorAll("[data-agent-log]").forEach(b => b.onclick = async () => {
+      try {
+        const s = shifts.find(x => String(x.id) === b.dataset.agentLog);
+        const note = $("agentNote"+b.dataset.agentLog).value.trim();
+        if (!s || !note) throw new Error("Choisis une vacation et saisis une transmission.");
+        const r = await db.from("main_courante").insert({user_id:agent.user_id,agent_id:agent.id,site_id:s.site_id,planning_id:s.id,type:"information",titre:"Transmission agent",description:note,priorite:"normale",statut:"ouvert"});
+        if (r.error) throw r.error;
+        status("Transmission enregistrée.");
+        await loadAgentPortal(user, agent);
+      } catch (e) { showError(e); }
+    });
+    $("agentLogoutBtn").onclick = async () => { const r = await db.auth.signOut(); if (r.error) showError(r.error); else { $("app").classList.add("hidden"); $("loginCard").classList.remove("hidden"); status("Déconnecté."); } };
+  }
+
   async function loadApp() {
     try {
-      await requireUser();
+      const user = await requireUser();
       $("loginCard").classList.add("hidden");
       $("app").classList.remove("hidden");
+      const found = await db.from("agents").select("*").eq("auth_user_id", user.id).maybeSingle();
+      if (found.error) throw found.error;
+      if (found.data) { await loadAgentPortal(user, found.data); return; }
       showAppSection("dashboardCard");
       await refreshData();
-    } catch (error) {
-      showError(error);
-    }
+    } catch (error) { showError(error); }
   }
 
   function agentHasRequiredQualification(agent, required) {
