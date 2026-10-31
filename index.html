@@ -412,17 +412,24 @@
       const user = await requireUser();
       $("loginCard").classList.add("hidden");
       $("app").classList.remove("hidden");
-      // Do not infer the account role from an agent link alone: a director account may also be linked to an agent record.
-      // The agent-only portal is used only when the authenticated account explicitly carries the agent role.
+      // Preserve existing access boundaries: a linked agent stays in the agent portal unless
+      // the account is explicitly marked as director/admin or owns company records.
       const explicitRole = String(user.app_metadata?.role || user.user_metadata?.role || "").toLowerCase();
-      if (explicitRole === "agent") {
+      const isDirectorRole = ["director","admin","administrator","owner","dirigeant","administrateur"].includes(explicitRole);
+      const [ownedAgents, ownedSites, ownedPlanning] = await Promise.all([
+        db.from("agents").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+        db.from("Site").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+        db.from("planning").select("id", { count: "exact", head: true }).eq("user_id", user.id)
+      ]);
+      for (const result of [ownedAgents, ownedSites, ownedPlanning]) if (result.error) throw result.error;
+      const ownsCompanyData = [ownedAgents, ownedSites, ownedPlanning].some(result => (result.count || 0) > 0);
+      if (!isDirectorRole && !ownsCompanyData) {
         const found = await db.from("agents").select("id,nom,Prenom,user_id,auth_user_id").eq("auth_user_id", user.id).maybeSingle();
         if (found.error) throw found.error;
-        if (!found.data) throw new Error("Le compte est marqué agent mais aucune fiche agent liée n’a été trouvée. Contacte le dirigeant pour vérifier l’accès.");
-        await loadAgentPortal(user, found.data);
-        return;
+        if (found.data) { await loadAgentPortal(user, found.data); return; }
       }
-      // Director/admin accounts retain the full company dashboard.
+      // Company owners/directors retain the management dashboard; unrelated unlinked accounts
+      // preserve the previous behavior and existing data is never changed or deleted.
       showAppSection("dashboardCard");
       await refreshData();
     } catch (error) { showError(error); }
