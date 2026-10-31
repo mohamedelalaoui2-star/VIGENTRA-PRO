@@ -361,7 +361,20 @@
   async function resolveWorkspaceOwnerId(user) {
     const { data, error } = await db.rpc("vigentra_workspace_owner_id");
     if (error) throw new Error("Impossible de charger l’espace de l’entreprise : " + (error.message || "réessaie après reconnexion."));
-    return typeof data === "string" && data ? data : user.id;
+    const ownerId = typeof data === "string" && data ? data : user.id;
+    if (ownerId !== user.id) {
+      const { data: membership, error: membershipError } = await db.from("vigentra_company_members")
+        .select("role,status")
+        .eq("owner_user_id", ownerId)
+        .eq("member_user_id", user.id)
+        .eq("status", "active")
+        .maybeSingle();
+      if (membershipError) throw new Error("Impossible de vérifier le rôle dans l’espace partagé.");
+      if (!membership || membership.role !== "director") {
+        throw new Error("L’accès à l’espace partagé est réservé à un directeur autorisé.");
+      }
+    }
+    return ownerId;
   }
 
   async function loadAgentPortal(user, agent) {
@@ -423,7 +436,7 @@
       $("app").classList.remove("hidden");
       // Preserve existing access boundaries: a linked agent stays in the agent portal unless
       // the account is explicitly marked as director/admin or owns company records.
-      const explicitRole = String(user.app_metadata?.role || user.user_metadata?.role || "").toLowerCase();
+      const explicitRole = String(user.app_metadata?.role || "").toLowerCase();
       const isDirectorRole = ["director","admin","administrator","owner","dirigeant","administrateur"].includes(explicitRole) || activeWorkspaceOwnerId !== user.id;
       const [ownedAgents, ownedSites, ownedPlanning] = await Promise.all([
         db.from("agents").select("id", { count: "exact", head: true }).eq("user_id", activeWorkspaceOwnerId || user.id),
