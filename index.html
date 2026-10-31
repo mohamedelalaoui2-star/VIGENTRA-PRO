@@ -5,6 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101827">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon.svg">
   <title>VIGENTRA PRO</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -74,6 +79,7 @@
       border-radius: 10px; border: 1px solid rgba(79,140,255,.2);
       background: rgba(37,99,235,.08); color: #a9caff; font-size: 13px; overflow-wrap: anywhere;
     }
+    #status[hidden] { display:none !important; }
     .item {
       padding: 14px; background: linear-gradient(135deg, #0b1423, #101b2d);
       border: 1px solid var(--line); margin-top: 9px; border-radius: 12px;
@@ -82,6 +88,43 @@
     #agentCount, #siteCount { color: var(--gold); font-size: 23px; }
     hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
     .hidden { display: none !important; }
+    .module-card { grid-column:1/-1; }
+    .quick-menu { position:sticky; top:8px; z-index:20; display:flex; gap:8px; overflow-x:auto; padding:8px; margin-bottom:14px; border:1px solid var(--line); border-radius:14px; background:rgba(8,13,24,.94); backdrop-filter:blur(12px); -webkit-overflow-scrolling:touch; }
+    .quick-menu button { flex:0 0 auto; width:auto; min-height:42px; margin:0; padding:10px 13px; font-size:13px; white-space:nowrap; }
+    .quick-menu button.active { background:linear-gradient(135deg,#d7b778,#9e7a3d); color:#101827; }
+    .quick-menu button::before,.module-nav button::before { display:inline-flex;align-items:center;justify-content:center;flex:0 0 25px;width:25px;height:25px;margin-right:7px;border:1px solid rgba(216,184,120,.42);border-radius:8px;color:#d8b878;font-size:16px;line-height:1;vertical-align:middle;content:"◆"; }
+    .quick-menu button.active::before,.module-nav button.active::before { color:#101827;border-color:rgba(16,24,39,.35); }
+    .quick-menu button[data-scroll="dashboardCard"]::before { content:"◈"; }
+    .quick-menu button[data-scroll="agentsCard"]::before { content:"♙"; }
+    .quick-menu button[data-scroll="sitesCard"]::before { content:"▣"; }
+    .quick-menu button[data-scroll="planningCard"]::before { content:"◷"; }
+    [data-module="journal"]::before { content:"≡"; }
+    [data-module="pointage"]::before { content:"✓"; }
+    [data-module="indispo"]::before { content:"◷"; }
+    [data-module="rondes"]::before { content:"⟳"; }
+    [data-module="clients"]::before { content:"♧"; }
+    [data-module="contrats"]::before { content:"▤"; }
+    [data-module="devis"]::before { content:"◇"; }
+    [data-module="finance"]::before { content:"€";font-size:14px; }
+    [data-module="exports"]::before { content:"⇩"; }
+    [data-module="equipe"]::before { content:"♙"; }
+    .module-nav { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px; }
+    .module-nav button { margin:0;min-height:44px;padding:9px;font-size:13px; }
+    .module-nav button.active { background:linear-gradient(135deg,#d7b778,#9e7a3d);color:#101827; }
+    #moduleContent input,#moduleContent select,#moduleContent textarea { display:block;width:100%;min-height:44px;padding:11px;margin:8px 0;border:1px solid rgba(148,163,184,.23);border-radius:10px;background:#091221;color:var(--text);font:inherit; }
+    #moduleContent textarea { min-height:80px; }
+    #moduleContent label { display:block;margin-top:9px;color:#c5d1e2;font-size:13px; }
+    .muted { color:var(--muted); }
+    @media print {
+      body { background:#fff !important;color:#111 !important; }
+      header, nav, .module-nav, button, .no-print, #loginPanel, #status, #error { display:none !important; }
+      main, .card, #moduleContent, .item { display:block !important; width:100% !important; max-width:none !important; background:#fff !important;color:#111 !important;box-shadow:none !important;border:1px solid #ddd !important; }
+      h1,h2,h3,p,div,span,label { color:#111 !important; }
+      input,select,textarea { display:none !important; }
+      .item { margin:8px 0;padding:10px;page-break-inside:avoid; }
+      body:before { content:"VIGENTRA PRO — TEA SÉCURITÉ PRIVÉE";display:block;font-size:20px;font-weight:bold;margin-bottom:16px; }
+    }
+    @media(max-width:420px){.module-nav{grid-template-columns:repeat(2,minmax(0,1fr));}}
     small { color: var(--muted); }
     @media (min-width: 700px) {
       body { padding: 36px 24px 54px; }
@@ -94,20 +137,55 @@
       header { padding: 21px 17px 17px; border-radius: 18px; }
       .card { padding: 17px; border-radius: 16px; }
     }
-  </style>
+  
+    /* VIGENTRA PRO — identité premium bleu nuit, or champagne et rouge signature */
+    body { max-width: 1320px; padding: 16px 12px 36px; background: radial-gradient(ellipse at 12% 0%,rgba(24,70,130,.2),transparent 35%),radial-gradient(ellipse at 94% 8%,rgba(155,30,42,.13),transparent 28%),#060a12; }
+    .brand-header { padding: 20px 18px 16px; border-color:rgba(215,183,120,.28); background:linear-gradient(120deg,rgba(13,22,37,.98),rgba(5,10,19,.98)); }
+    .brand-row { display:flex; align-items:center; gap:14px; position:relative; z-index:1; }
+    .brand-crest { width:104px; height:112px; flex:0 0 104px; display:grid; place-items:center; padding:8px; border:2px solid #d7b778; border-radius:42% 42% 48% 48%; background:radial-gradient(circle at 35% 20%,#18253a,#070c15 70%); box-shadow:inset 0 0 0 4px rgba(215,183,120,.12),0 8px 20px rgba(0,0,0,.35); }\n    .brand-logo { display:block; width:100%; height:100%; filter:drop-shadow(0 3px 5px rgba(0,0,0,.4)); }
+    .brand-copy { min-width:0; }
+    .brand-header h1 { font-size:clamp(27px,7vw,43px); letter-spacing:.08em; line-height:1.08; margin:0; white-space:nowrap; }
+    .brand-header h1 span { color:#f1d18a; text-shadow:0 2px 14px rgba(215,183,120,.16); }
+    .brand-header h1 em { font-style:normal; color:#e0444d; }
+    .brand-sub { color:#d7b778; letter-spacing:.18em; font-size:clamp(9px,2.6vw,13px); font-weight:800; margin-top:8px; }
+    .brand-motto { color:#dce3ee; font-size:9px; letter-spacing:.12em; margin-top:10px; }
+    .brand-header #installHelpBtn { max-width:360px; margin-top:18px; background:linear-gradient(120deg,#b58b43,#f2d99d,#a47a36); color:#111827; border-color:rgba(255,230,165,.6); box-shadow:0 6px 22px rgba(215,183,120,.12); }
+    .quick-menu { position:sticky; top:6px; z-index:50; display:flex; flex-wrap:nowrap; gap:7px; overflow-x:auto; overflow-y:hidden; padding:7px; margin:0 0 14px; border:1px solid rgba(215,183,120,.3); border-radius:15px; background:rgba(5,10,19,.97); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); box-shadow:0 12px 30px rgba(0,0,0,.35); -webkit-overflow-scrolling:touch; scrollbar-width:none; }\n    .quick-menu::-webkit-scrollbar { display:none; }
+    .quick-menu button { flex:0 0 82px; min-width:82px; width:82px; min-height:58px; margin:0; padding:7px 5px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:5px; border:1px solid rgba(215,183,120,.2); border-radius:11px; background:linear-gradient(155deg,#111b2b,#080e18); color:#edf2fa; box-shadow:none; font-size:10px; font-weight:650; line-height:1.2; white-space:normal; overflow-wrap:anywhere; }\n    .quick-menu button::before { content:none !important; display:none !important; }
+    .quick-menu .menu-icon { display:block; color:#e7c77e; font-size:25px; line-height:1; font-weight:500; text-shadow:0 0 12px rgba(215,183,120,.2); }
+    .quick-menu button.active, .quick-menu button:focus-visible { border-color:#e0444d; background:linear-gradient(150deg,rgba(134,27,39,.8),rgba(30,15,25,.96)); box-shadow:inset 0 0 0 1px rgba(239,68,68,.16),0 0 15px rgba(239,68,68,.12); outline:none; }
+    .quick-menu button.active .menu-icon { color:#f2d18b; }
+    .card { border-color:rgba(133,157,190,.19); background:linear-gradient(145deg,rgba(16,26,43,.98),rgba(8,14,24,.98)); }
+    h2 { color:#f3d28c; }
+    button { background:linear-gradient(135deg,#b58b43,#e5c47e,#997031); color:#111827; border-color:rgba(255,226,155,.28); box-shadow:0 6px 16px rgba(215,183,120,.1); }
+    button.danger { background:linear-gradient(135deg,#e0444d,#8e1d2c); color:#fff; }
+    .status { border-color:rgba(215,183,120,.2); }
+    @media (min-width:760px) { .quick-menu button { flex-basis:104px; min-width:104px; width:104px; min-height:68px; font-size:12px; } .quick-menu .menu-icon { font-size:29px; } .brand-header { padding:25px 28px 20px; } }
+    @media (max-width:360px) { .quick-menu button { flex-basis:76px; min-width:76px; width:76px; } .brand-crest { width:64px;height:72px;flex-basis:64px;padding:4px; } .brand-motto { letter-spacing:.06em;font-size:8px; } }
+
+    .dashboard-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}.dashboard-head h2{margin:2px 0 5px;font-size:clamp(25px,6vw,34px)}.eyebrow{margin:0;color:#d7b778;font-size:10px;font-weight:800;letter-spacing:.2em}.dashboard-refresh{width:auto;margin:0;min-height:40px;padding:9px 12px;font-size:12px}.dashboard-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}.kpi-tile{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0;width:100%;min-height:140px;margin:0;padding:14px;border:1px solid rgba(215,183,120,.24);border-radius:15px;background:linear-gradient(145deg,#142137,#090f1b);color:#edf2fa;text-align:left}.kpi-icon{color:#e5c47e;font-size:24px;line-height:1}.kpi-label{color:#b9c5d8;font-size:12px;line-height:1.3}.kpi-tile strong{color:#f4d58d;font-size:32px;line-height:1.1}.kpi-foot{color:#8eabc9;font-size:10px}.dashboard-lower{display:grid;grid-template-columns:1fr;gap:12px}.dashboard-panel{padding:14px;border:1px solid rgba(133,157,190,.18);border-radius:14px;background:rgba(5,10,19,.38)}.dashboard-panel h3{margin:0 0 12px;color:#f3d28c;font-size:16px}.dashboard-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dashboard-shortcuts button,.dashboard-panel>button{width:100%;min-height:46px;margin:0;padding:9px 8px;font-size:11px}#app>section.card.view-hidden{display:none!important}#app>section.card{scroll-margin-top:86px}@media(min-width:760px){.dashboard-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.dashboard-lower{grid-template-columns:1.2fr 1fr}.kpi-tile{min-height:160px;padding:18px}.dashboard-shortcuts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
 </head>
 <body>
-  <header>
-    <h1>VIGENTRA PRO</h1>
-    <div>Gestion professionnelle de sécurité privée</div>
-    <p id="status" class="status">Configuration requise</p>
+  <header class="brand-header">
+    <div class="brand-row"><div class="brand-crest" aria-label="Logo VIGENTRA PRO">
+      <svg class="brand-logo" viewBox="0 0 120 132" role="img" aria-label="Écusson VIGENTRA PRO">
+        <defs><linearGradient id="vpGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0b0"/><stop offset=".42" stop-color="#d7b778"/><stop offset=".72" stop-color="#f5d994"/><stop offset="1" stop-color="#9b7134"/></linearGradient></defs>
+        <path d="M60 5 108 23 103 76Q97 105 60 126 23 105 17 76L12 23Z" fill="#07101e" stroke="url(#vpGold)" stroke-width="4"/>
+        <path d="M60 15 98 29 94 75Q87 98 60 115 33 98 26 75L22 29Z" fill="none" stroke="#9f7b43" stroke-width="1.5"/>
+        <path d="M60 21 66 42 87 48 66 54 60 75 54 54 33 48 54 42Z" fill="url(#vpGold)"/>
+        <path d="M33 63 53 97 53 65 67 65 67 111 57 111 27 63Z" fill="url(#vpGold)"/>
+        <path d="M69 64H83Q97 64 97 79T83 94H73V108H61V80H83Q86 80 86 79T83 77H69Z" fill="url(#vpGold)"/>
+        <path d="M26 77 37 99 48 108 42 113Q27 101 22 82Z" fill="#c92135"/>
+        <path d="M94 77 83 99 72 108 78 113Q93 101 98 82Z" fill="#c92135"/>
+      </svg>
+    </div><div class="brand-copy"><h1><span>VIGENTRA</span> <em>PRO</em></h1><div class="brand-sub">TEA SÉCURITÉ PRIVÉE</div><div class="brand-motto">PLANIFIER&nbsp; | &nbsp;GÉRER&nbsp; | &nbsp;SÉCURISER</div></div></div> 
+<p id="status" class="status" hidden></p>
   </header>
 
   <section class="card" id="loginCard">
     <h2>Connexion</h2>
-    <input id="configUrl" placeholder="https://vdoolfdxtqgjqzltxloo.supabase.co">
-    <input id="configKey" placeholder="sb_publishable_KU1Rdv08vpOfvNxdCqno8Q_AN49L-Pd">
-    <button id="connectBtn">Connecter Supabase</button>
+    
     <hr>
     <input id="loginEmail" type="email" placeholder="Adresse e-mail">
     <input id="loginPassword" type="password" placeholder="Mot de passe">
@@ -116,38 +194,91 @@
   </section>
 
   <main id="app" class="hidden">
-    <section class="card">
-      <h2>Tableau de bord</h2>
-      <p>Agents : <strong id="agentCount">0</strong></p>
-      <p>Sites : <strong id="siteCount">0</strong></p>
-      <button id="refreshBtn">Actualiser</button>
-      <button id="logoutBtn" class="danger">Se déconnecter</button>
+    <nav class="quick-menu" aria-label="Menu principal"><button type="button" data-scroll="dashboardCard"><span class="menu-icon">⌂</span><span>Tableau de bord</span></button><button type="button" data-scroll="agentsCard"><span class="menu-icon">♟</span><span>Agents</span></button><button type="button" data-scroll="sitesCard"><span class="menu-icon">⌖</span><span>Sites</span></button><button type="button" data-scroll="planningCard"><span class="menu-icon">▦</span><span>Planning</span></button><button type="button" data-module="journal"><span class="menu-icon">▤</span><span>Main courante</span></button><button type="button" data-module="pointage"><span class="menu-icon">◉</span><span>Pointage</span></button><button type="button" data-module="indispo"><span class="menu-icon">⊠</span><span>Indisponibilités</span></button><button type="button" data-module="rondes"><span class="menu-icon">⬡</span><span>Rondes</span></button><button type="button" data-module="clients"><span class="menu-icon">♧</span><span>Clients</span></button><button type="button" data-module="contrats"><span class="menu-icon">▣</span><span>Contrats</span></button><button type="button" data-module="devis"><span class="menu-icon">▧</span><span>Devis</span></button><button type="button" data-module="finance"><span class="menu-icon">◈</span><span>Factures & charges</span></button><button type="button" data-module="conformite"><span class="menu-icon">✓</span><span>Conformité</span></button><button type="button" data-module="exports"><span class="menu-icon">▥</span><span>Exports CSV</span></button><button type="button" data-module="equipe"><span class="menu-icon">⚙</span><span>Équipe & accès</span></button></nav>
+    <section class="card" id="dashboardCard">
+      <div class="dashboard-head"><div><p class="eyebrow">ESPACE DE PILOTAGE</p><h2>Tableau de bord</h2><p class="muted">Vue d’ensemble de TEA SÉCURITÉ PRIVÉE</p></div><button id="refreshBtn" class="dashboard-refresh" type="button">↻ Actualiser</button></div>
+      <div class="dashboard-kpis">
+        <button type="button" class="kpi-tile" data-scroll="agentsCard"><span class="kpi-icon">♟</span><span class="kpi-label">Agents</span><strong id="agentCount">0</strong><span class="kpi-foot">Gérer l’équipe →</span></button>
+        <button type="button" class="kpi-tile" data-scroll="sitesCard"><span class="kpi-icon">⌖</span><span class="kpi-label">Sites clients</span><strong id="siteCount">0</strong><span class="kpi-foot">Voir les sites →</span></button>
+        <button type="button" class="kpi-tile" data-scroll="planningCard"><span class="kpi-icon">▦</span><span class="kpi-label">Vacations chargées</span><strong id="plannedCount">0</strong><span class="kpi-foot">Ouvrir le planning →</span></button>
+        <div class="kpi-tile"><span class="kpi-icon">◷</span><span class="kpi-label">Vacations aujourd’hui</span><strong id="todayCount">0</strong><span class="kpi-foot">À surveiller</span></div>
+        <button type="button" class="kpi-tile" data-scroll="agentsCard"><span class="kpi-icon">⚠</span><span class="kpi-label">Alertes à traiter</span><strong id="alertCount">0</strong><span class="kpi-foot">Cartes et vacations →</span></button>
+        <button type="button" class="kpi-tile" data-scroll="planningCard"><span class="kpi-icon">!</span><span class="kpi-label">Vacations à compléter</span><strong id="incompleteShiftCount">0</strong><span class="kpi-foot">Affectation agent/site →</span></button>
+        <div class="kpi-tile"><span class="kpi-icon">✓</span><span class="kpi-label">Vacations couvertes aujourd’hui</span><strong id="coveredTodayCount">0</strong><span class="kpi-foot">Agent et site affectés</span></div>
+      </div>
+      <div class="dashboard-lower">
+        <div class="dashboard-panel"><h3>Accès rapides</h3><div class="dashboard-shortcuts"><button type="button" data-module="journal">▤ Main courante</button><button type="button" data-module="pointage">◉ Pointage</button><button type="button" data-module="rondes">⬡ Rondes</button><button type="button" data-module="clients">♧ Clients</button><button type="button" data-module="contrats">▣ Contrats</button><button type="button" data-module="finance">◈ Factures & charges</button></div></div>
+        <div class="dashboard-panel"><h3>Actions de gestion</h3><p class="muted">Choisis une rubrique dans le menu pour gérer les agents, les sites, les vacations et les opérations.</p><button type="button" data-module="equipe">⚙ Gérer les accès</button><button id="logoutBtn" class="danger" type="button">Se déconnecter</button></div>
+      </div>
     </section>
 
-    <section class="card">
+    <section class="card" id="agentsCard">
       <h2>Ajouter un agent</h2>
       <input id="agentName" placeholder="Nom et prénom" required>
       <input id="agentEmail" type="email" placeholder="E-mail (facultatif)">
       <input id="agentPhone" type="tel" placeholder="Téléphone (facultatif)">
+      <label for="agentQualification">Qualification principale</label>
+      <select id="agentQualification"><option value="">À renseigner</option><option value="APS">APS</option><option value="SSIAP 1">SSIAP 1</option><option value="SSIAP 2">SSIAP 2</option><option value="SSIAP 3">SSIAP 3</option><option value="SST">SST</option><option value="Autre">Autre</option></select>
+      <input id="agentCardNumber" placeholder="Numéro de carte professionnelle (facultatif)">
+      <label for="agentCardExpiry">Expiration de la carte professionnelle</label>
+      <input id="agentCardExpiry" type="date">
       <button id="addAgentBtn">Enregistrer l'agent</button>
       <div id="agentsList"></div>
     </section>
 
-    <section class="card">
+    <section class="card" id="sitesCard">
       <h2>Créer un site client</h2>
       <input id="siteName" placeholder="Nom du site client" required>
+      <label for="siteRequiredQualification">Qualification exigée pour ce site</label>
+      <select id="siteRequiredQualification"><option value="">Aucune exigence spécifique</option><option value="APS">APS</option><option value="SSIAP 1">SSIAP 1</option><option value="SSIAP 2">SSIAP 2</option><option value="SSIAP 3">SSIAP 3</option><option value="SST">SST</option></select>
       <button id="addSiteBtn">Enregistrer le site</button>
       <div id="sitesList"></div>
     </section>
-  </main>
+
+    <section class="card" id="planningCard">
+      <h2>Planning des vacations</h2>
+      <label for="shiftAgent">Agent</label>
+      <select id="shiftAgent" required><option value="">Choisir un agent</option></select>
+      <label for="shiftSite">Site client</label>
+      <select id="shiftSite" required><option value="">Choisir un site</option></select>
+      <label for="shiftDate">Date</label>
+      <input id="shiftDate" type="date" required>
+      <div class="grid">
+        <div><label for="shiftStart">Début</label><input id="shiftStart" type="time" required></div>
+        <div><label for="shiftEnd">Fin</label><input id="shiftEnd" type="time" required></div>
+      </div>
+      <button id="addShiftBtn">Enregistrer la vacation</button>
+      <button type="button" id="sharePlanningBtn" class="secondary">📲 Envoyer le planning par WhatsApp</button>
+      <button type="button" id="printPlanningBtn" class="secondary">📄 Créer le PDF du planning</button>
+      <button type="button" id="smartPlanningBtn" class="secondary">✨ IA planning intelligente — proposer les affectations</button>
+      <div id="smartPlanningResults" aria-live="polite"></div>
+      <p>Heures planifiées affichées : <strong id="plannedHours">0 h</strong></p>
+      <div id="planningList"></div>
+    </section>
+  
+    <section class="card module-card" id="operationsCard">
+      <h2>Gestion opérationnelle</h2>
+      <div class="module-nav">
+        <button type="button" data-module="journal">Main courante</button>
+        <button type="button" data-module="pointage">Pointage</button>
+        <button type="button" data-module="indispo">Indisponibilités</button>
+        <button type="button" data-module="rondes">Rondes</button>
+        <button type="button" data-module="clients">Clients</button><button type="button" data-module="contrats">Contrats</button><button type="button" data-module="devis">Devis</button><button type="button" data-module="finance">Factures & charges</button>
+        <button type="button" data-module="conformite">Conformité réglementaire</button><button type="button" data-module="exports">Exports CSV</button><button type="button" data-module="equipe">Équipe & accès</button>
+      </div><div id="moduleContent"><p class="muted">Choisis un module ci-dessus.</p></div>
+    </section>
+</main>
 
 <script>
 (() => {
   let db = null;
+  let activeWorkspaceOwnerId = null;
   let busy = false;
+  const SUPABASE_URL = "https://pqpoxbsudbydsppqoxon.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_H-zHZU7v1uIwLec4CkDWow_5ZtK9gPf";
 
   const $ = id => document.getElementById(id);
-  const status = message => { $("status").textContent = message; };
+  const status = message => { const el = $("status"); el.textContent = message; el.hidden = false; };
 
   function showError(error) {
     console.error(error);
@@ -160,16 +291,32 @@
   }
 
   async function connect() {
-    const url = $("configUrl").value.trim().replace(/\/$/, "");
-    const key = $("configKey").value.trim();
-
-    if (!validConfig(url, key)) {
-      status("Vérifie l'URL Supabase et la clé publique.");
+    if (!window.supabase?.createClient) {
+      status("Erreur : la bibliothèque Supabase n’a pas pu être chargée. Vérifie ta connexion Internet puis recharge la page.");
       return;
     }
-
-    db = window.supabase.createClient(url, key);
-    status("Supabase configuré. Connecte-toi à ton compte.");
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+    const { data, error } = await db.auth.getSession();
+    if (error) throw error;
+    if (data.session?.user) {
+      status("Session retrouvée. Chargement de VIGENTRA PRO…");
+      await loadApp();
+    } else {
+      status("Supabase configuré. Connecte-toi à ton compte.");
+    }
+    db.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        activeWorkspaceOwnerId = null;
+        $("app").classList.add("hidden");
+        $("loginCard").classList.remove("hidden");
+        status("Déconnecté.");
+      } else if (event === "SIGNED_IN" && session?.user) {
+        $("loginCard").classList.add("hidden");
+        $("app").classList.remove("hidden");
+      }
+    });
   }
 
   async function login(createAccount = false) {
@@ -211,30 +358,162 @@
     return data.user;
   }
 
+  async function resolveWorkspaceOwnerId(user) {
+    const { data, error } = await db.rpc("vigentra_workspace_owner_id");
+    if (error) throw new Error("Impossible de charger l’espace de l’entreprise : " + (error.message || "réessaie après reconnexion."));
+    const ownerId = typeof data === "string" && data ? data : user.id;
+    if (ownerId !== user.id) {
+      const { data: membership, error: membershipError } = await db.from("vigentra_company_members")
+        .select("role,status")
+        .eq("owner_user_id", ownerId)
+        .eq("member_user_id", user.id)
+        .eq("status", "active")
+        .maybeSingle();
+      if (membershipError) throw new Error("Impossible de vérifier le rôle dans l’espace partagé.");
+      if (!membership || membership.role !== "director") {
+        throw new Error("L’accès à l’espace partagé est réservé à un directeur autorisé.");
+      }
+    }
+    return ownerId;
+  }
+
+  async function loadAgentPortal(user, agent) {
+    const app = $("app");
+    app.querySelectorAll(".quick-menu, #dashboardCard, #agentsCard, #sitesCard, #planningCard, #operationsCard").forEach(node => node.classList.add("hidden"));
+    let portal = $("agentPortal");
+    if (!portal) {
+      portal = document.createElement("section");
+      portal.id = "agentPortal";
+      portal.className = "card";
+      app.prepend(portal);
+    }
+    const result = await db.from("planning").select("*").eq("agent_id", agent.id).order("date_vacation", {ascending:true}).limit(100);
+    if (result.error) throw result.error;
+    const shifts = result.data || [];
+    const ids = [...new Set(shifts.map(s => s.site_id).filter(Boolean))];
+    let siteMap = {};
+    if (ids.length) {
+      const sr = await db.from("Site").select("id,Nom,Adresse").in("id", ids);
+      if (sr.error) throw sr.error;
+      (sr.data || []).forEach(s => siteMap[s.id] = s);
+    }
+    const cards = shifts.map(s => {
+      const site = siteMap[s.site_id] || {};
+      return '<div class="item"><b>'+esc(s.date_vacation)+'</b> · '+esc(String(s.heure_debut||"").slice(0,5))+' – '+esc(String(s.heure_fin||"").slice(0,5))+'<p>'+esc(site.Nom || "Site non renseigné")+'</p><p class="muted">Planning en lecture seule.</p><div class="grid"><button type="button" data-agent-punch="debut" data-shift="'+esc(s.id)+'">Pointer début</button><button type="button" class="secondary" data-agent-punch="fin" data-shift="'+esc(s.id)+'">Pointer fin</button></div><label>Transmission main courante</label><textarea id="agentNote'+esc(s.id)+'" placeholder="Événement ou consigne"></textarea><button type="button" data-agent-log="'+esc(s.id)+'">Enregistrer la transmission</button></div>';
+    }).join("");
+    portal.innerHTML = '<div class="dashboard-head"><div><p class="eyebrow">ESPACE AGENT</p><h2>Bonjour '+esc([agent.Prenom,agent.nom].filter(Boolean).join(" "))+'</h2><p class="muted">Planning non modifiable · Pointage · Main courante</p></div><button id="agentLogoutBtn" class="danger" type="button">Se déconnecter</button></div><h3>Mon planning</h3>'+(cards || '<p class="muted">Aucune vacation affectée.</p>')+'<h3>Mes transmissions récentes</h3><div id="agentLogs"></div>';
+    const lr = await db.from("main_courante").select("titre,description,priorite,created_at").eq("agent_id", agent.id).order("created_at", {ascending:false}).limit(20);
+    if (lr.error) throw lr.error;
+    $("agentLogs").innerHTML = (lr.data || []).map(x => '<div class="item"><b>'+esc(x.titre)+'</b> · '+esc(x.priorite||"normale")+'<p>'+esc(x.description)+'</p><small>'+esc(String(x.created_at||"").slice(0,16).replace("T"," "))+'</small></div>').join("") || '<p class="muted">Aucune transmission enregistrée.</p>';
+    portal.querySelectorAll("[data-agent-punch]").forEach(b => b.onclick = async () => {
+      try {
+        const s = shifts.find(x => String(x.id) === b.dataset.shift);
+        if (!s) throw new Error("Vacation introuvable.");
+        const r = await db.from("pointages").insert({user_id:agent.user_id,agent_id:agent.id,site_id:s.site_id,planning_id:s.id,type:b.dataset.agentPunch,methode:"interface_agent"});
+        if (r.error) throw r.error;
+        status(b.dataset.agentPunch === "debut" ? "Début de service pointé." : "Fin de service pointée.");
+      } catch (e) { showError(e); }
+    });
+    portal.querySelectorAll("[data-agent-log]").forEach(b => b.onclick = async () => {
+      try {
+        const s = shifts.find(x => String(x.id) === b.dataset.agentLog);
+        const note = $("agentNote"+b.dataset.agentLog).value.trim();
+        if (!s || !note) throw new Error("Choisis une vacation et saisis une transmission.");
+        const r = await db.from("main_courante").insert({user_id:agent.user_id,agent_id:agent.id,site_id:s.site_id,planning_id:s.id,type:"information",titre:"Transmission agent",description:note,priorite:"normale",statut:"ouvert"});
+        if (r.error) throw r.error;
+        status("Transmission enregistrée.");
+        await loadAgentPortal(user, agent);
+      } catch (e) { showError(e); }
+    });
+    $("agentLogoutBtn").onclick = async () => { const r = await db.auth.signOut(); if (r.error) showError(r.error); else { $("app").classList.add("hidden"); $("loginCard").classList.remove("hidden"); status("Déconnecté."); } };
+  }
+
   async function loadApp() {
     try {
-      await requireUser();
+      const user = await requireUser();
+      activeWorkspaceOwnerId = await resolveWorkspaceOwnerId(user);
       $("loginCard").classList.add("hidden");
       $("app").classList.remove("hidden");
+      // Preserve existing access boundaries: a linked agent stays in the agent portal unless
+      // the account is explicitly marked as director/admin or owns company records.
+      const explicitRole = String(user.app_metadata?.role || "").toLowerCase();
+      const isDirectorRole = ["director","admin","administrator","owner","dirigeant","administrateur"].includes(explicitRole) || activeWorkspaceOwnerId !== user.id;
+      const [ownedAgents, ownedSites, ownedPlanning] = await Promise.all([
+        db.from("agents").select("id", { count: "exact", head: true }).eq("user_id", activeWorkspaceOwnerId || user.id),
+        db.from("Site").select("id", { count: "exact", head: true }).eq("user_id", activeWorkspaceOwnerId || user.id),
+        db.from("planning").select("id", { count: "exact", head: true }).eq("user_id", activeWorkspaceOwnerId || user.id)
+      ]);
+      for (const result of [ownedAgents, ownedSites, ownedPlanning]) if (result.error) throw result.error;
+      const ownsCompanyData = [ownedAgents, ownedSites, ownedPlanning].some(result => (result.count || 0) > 0);
+      if (!isDirectorRole && !ownsCompanyData) {
+        const found = await db.from("agents").select("id,nom,Prenom,user_id,auth_user_id").eq("auth_user_id", user.id).maybeSingle();
+        if (found.error) throw found.error;
+        if (found.data) { await loadAgentPortal(user, found.data); return; }
+      }
+      // Company owners/directors retain the management dashboard; unrelated unlinked accounts
+      // preserve the previous behavior and existing data is never changed or deleted.
+      showAppSection("dashboardCard");
       await refreshData();
-    } catch (error) {
-      showError(error);
-    }
+    } catch (error) { showError(error); }
+  }
+
+  function agentHasRequiredQualification(agent, required) {
+    if (!required) return true;
+    const qualifications = [agent?.qualification, agent?.autres_qualifications]
+      .filter(Boolean).join(",").split(/[,;|/]+/).map(v => v.trim().toUpperCase());
+    return qualifications.includes(String(required).trim().toUpperCase());
+  }
+
+  function shiftDurationMinutes(start, end) {
+    if (!start || !end) return 0;
+    const toMinutes = value => {
+      const parts = value.split(":").map(Number);
+      return parts[0] * 60 + parts[1];
+    };
+    let minutes = toMinutes(end) - toMinutes(start);
+    if (minutes < 0) minutes += 24 * 60;
+    return minutes;
+  }
+
+  function formatDuration(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const remainder = minutes % 60;
+    return remainder ? hours + " h " + remainder + " min" : hours + " h";
   }
 
   async function refreshData() {
     try {
       const user = await requireUser();
 
-      const [agentsResult, sitesResult] = await Promise.all([
-        db.from("agents").select("*").eq("user_id", user.id).order("full_name"),
-        db.from("sites").select("*").eq("user_id", user.id).order("name")
+      const [agentsResult, sitesResult, planningResult] = await Promise.all([
+        db.from("agents").select("*").eq("user_id", activeWorkspaceOwnerId || user.id).order("nom"),
+        db.from("Site").select("*").eq("user_id", activeWorkspaceOwnerId || user.id).order("Nom"),
+        db.from("planning").select("*").eq("user_id", activeWorkspaceOwnerId || user.id).order("date_vacation", { ascending: false }).limit(100)
       ]);
 
+      // Update the agent counter as soon as its own query succeeds, even if another module query fails.
+      if (!agentsResult.error && agentsResult.data) $("agentCount").textContent = agentsResult.data.length;
       if (agentsResult.error) throw agentsResult.error;
       if (sitesResult.error) throw sitesResult.error;
+      if (planningResult.error) throw planningResult.error;
 
       $("agentCount").textContent = agentsResult.data.length;
+      $("plannedCount").textContent = planningResult.data.length;
+      const now = new Date();
+      const todayKey = [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
+      const todayShifts = planningResult.data.filter(x => x.date_vacation === todayKey);
+      $("todayCount").textContent = todayShifts.length;
+      $("coveredTodayCount").textContent = todayShifts.filter(x => x.agent_id && x.site_id).length;
+      const expiryAlerts = agentsResult.data.filter(a => {
+        if (!a.expiration_carte_pro) return false;
+        const expiry = new Date(a.expiration_carte_pro + "T00:00:00");
+        const today = new Date(); today.setHours(0,0,0,0);
+        return Math.ceil((expiry - today) / 86400000) <= 30;
+      }).length;
+      const upcomingShifts = planningResult.data.filter(x => x.date_vacation >= todayKey);
+      const incompleteShifts = upcomingShifts.filter(x => !x.agent_id || !x.site_id).length;
+      $("incompleteShiftCount").textContent = incompleteShifts;
+      $("alertCount").textContent = expiryAlerts + incompleteShifts;
       $("siteCount").textContent = sitesResult.data.length;
 
       $("agentsList").replaceChildren();
@@ -242,21 +521,84 @@
         const item = document.createElement("div");
         item.className = "item";
         item.textContent = [
-          agent.full_name,
-          agent.email,
-          agent.phone
+          [agent.Prenom, agent.nom].filter(Boolean).join(" "),
+          agent.Email,
+          agent["Téléphone"],
+          agent.qualification ? "Qualification : " + agent.qualification : "",
+          agent.numero_carte_pro ? "Carte pro : " + agent.numero_carte_pro : "",
+          agent.expiration_carte_pro ? "Expiration : " + agent.expiration_carte_pro : ""
         ].filter(Boolean).join(" — ");
+        if (agent.expiration_carte_pro) {
+          const expiryDate = new Date(agent.expiration_carte_pro + "T00:00:00");
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const days = Math.ceil((expiryDate - today) / 86400000);
+          if (days < 0) item.textContent += " — ALERTE : carte expirée";
+          else if (days <= 30) item.textContent += " — ALERTE : expiration dans " + days + " jour(s)";
+        }
+        const controls = document.createElement("div");
+        controls.className = "module-grid no-print";
+        const edit = document.createElement("button");
+        edit.type = "button"; edit.textContent = "Modifier";
+        edit.onclick = async () => { try {
+          const name = prompt("Nom et prénom", agent.nom || ""); if (name === null) return;
+          if (!name.trim()) throw new Error("Le nom est obligatoire.");
+          const email = prompt("E-mail", agent.Email || ""); if (email === null) return;
+          const phone = prompt("Téléphone", agent["Téléphone"] || ""); if (phone === null) return;
+          const qualification = prompt("Qualification", agent.qualification || ""); if (qualification === null) return;
+          const card = prompt("Numéro de carte professionnelle", agent.numero_carte_pro || ""); if (card === null) return;
+          const expiry = prompt("Expiration (AAAA-MM-JJ)", agent.expiration_carte_pro || ""); if (expiry === null) return;
+          const user = await requireUser();
+          const {error} = await db.from("agents").update({nom:name.trim(),Email:email.trim()||null,"Téléphone":phone.trim()||null,qualification:qualification.trim()||null,numero_carte_pro:card.trim()||null,expiration_carte_pro:expiry||null}).eq("id",agent.id).eq("user_id",activeWorkspaceOwnerId || user.id);
+          if(error) throw error; status("Agent modifié."); await refreshData();
+        } catch(e) { showError(e); } };
+        const del = document.createElement("button"); del.type="button"; del.className="danger"; del.textContent="Supprimer";
+        del.onclick = async () => { if(!confirm("Supprimer ce dossier agent ? Cette action peut être impossible si des vacations y sont rattachées.")) return; try { const u=await requireUser(); const linked=await db.from("planning").select("id",{count:"exact",head:true}).eq("agent_id",agent.id).eq("user_id",activeWorkspaceOwnerId || u.id); if(linked.error) throw linked.error; if((linked.count||0)>0) throw Error("Suppression bloquée : cet agent possède des vacations dans le planning. Supprime ou réaffecte ces vacations d’abord. Aucune donnée n’a été supprimée."); const {error}=await db.from("agents").delete().eq("id",agent.id).eq("user_id",activeWorkspaceOwnerId || u.id); if(error) throw error; status("Agent supprimé."); await refreshData(); } catch(e) { showError(e); } };
+        controls.append(edit,del); item.appendChild(controls);
         $("agentsList").appendChild(item);
       });
+
+      const agentSelect = $("shiftAgent");
+      const priorAgent = agentSelect.value;
+      agentSelect.replaceChildren(new Option("Choisir un agent", ""));
+      agentsResult.data.forEach(agent => agentSelect.add(new Option([agent.Prenom, agent.nom].filter(Boolean).join(" ") || agent.nom || "Agent", String(agent.id))));
+      if (priorAgent) agentSelect.value = priorAgent;
+
+      const siteSelect = $("shiftSite");
+      const priorSite = siteSelect.value;
+      siteSelect.replaceChildren(new Option("Choisir un site", ""));
+      sitesResult.data.forEach(site => siteSelect.add(new Option(site.Nom || "Site", String(site.id))));
+      if (priorSite) siteSelect.value = priorSite;
 
       $("sitesList").replaceChildren();
       sitesResult.data.forEach(site => {
         const item = document.createElement("div");
         item.className = "item";
-        item.textContent = site.name;
-        $("sitesList").appendChild(item);
+        item.textContent = site.Nom;
+        const controls = document.createElement("div"); controls.className="module-grid no-print";
+        const edit = document.createElement("button"); edit.type="button"; edit.textContent="Modifier";
+        edit.onclick=async()=>{try{const name=prompt("Nom du site",site.Nom||"");if(name===null)return;if(!name.trim())throw new Error("Le nom est obligatoire.");const u=await requireUser();const {error}=await db.from("Site").update({Nom:name.trim()}).eq("id",site.id).eq("user_id",activeWorkspaceOwnerId || u.id);if(error)throw error;status("Site modifié.");await refreshData()}catch(e){showError(e)}};
+        const del=document.createElement("button");del.type="button";del.className="danger";del.textContent="Supprimer";
+        del.onclick=async()=>{if(!confirm("Supprimer ce site ? Cette action peut être impossible si des vacations y sont rattachées."))return;try{const u=await requireUser();const linked=await db.from("planning").select("id",{count:"exact",head:true}).eq("site_id",site.id).eq("user_id",activeWorkspaceOwnerId || u.id);if(linked.error)throw linked.error;if((linked.count||0)>0)throw Error("Suppression bloquée : ce site possède des vacations dans le planning. Supprime ou réaffecte ces vacations d’abord. Aucune donnée n’a été supprimée.");const {error}=await db.from("Site").delete().eq("id",site.id).eq("user_id",activeWorkspaceOwnerId || u.id);if(error)throw error;status("Site supprimé.");await refreshData()}catch(e){showError(e)}};
+        controls.append(edit,del);item.appendChild(controls);$("sitesList").appendChild(item);
       });
 
+      $("planningList").replaceChildren();
+      let totalPlannedMinutes = 0;
+      planningResult.data.forEach(shift => {
+        const duration = shiftDurationMinutes(shift.heure_debut, shift.heure_fin);
+        if (duration > 0) totalPlannedMinutes += duration;
+        const agent = agentsResult.data.find(a => String(a.id) === String(shift.agent_id));
+        const site = sitesResult.data.find(x => String(x.id) === String(shift.site_id));
+        const item = document.createElement("div");
+        item.className = "item";
+        item.textContent = [shift.date_vacation, (shift.heure_debut || "").slice(0,5) + "–" + (shift.heure_fin || "").slice(0,5), duration > 0 ? formatDuration(duration) : "", agent ? [agent.Prenom, agent.nom].filter(Boolean).join(" ") : "Agent", site ? site.Nom : "Site", shift.statut || "prévue"].filter(Boolean).join(" — ");
+        const del=document.createElement("button");del.type="button";del.className="danger no-print";del.textContent="Supprimer la vacation";
+        del.onclick=async()=>{if(!confirm("Supprimer cette vacation ?"))return;try{const u=await requireUser();const {error}=await db.from("planning").delete().eq("id",shift.id).eq("user_id",activeWorkspaceOwnerId || u.id);if(error)throw error;status("Vacation supprimée.");await refreshData()}catch(e){showError(e)}};
+        item.appendChild(del);$("planningList").appendChild(item);
+      });
+
+      $("plannedHours").textContent = formatDuration(totalPlannedMinutes);
       status("VIGENTRA PRO connecté à Supabase.");
     } catch (error) {
       showError(error);
@@ -265,8 +607,8 @@
 
   async function addAgent() {
     if (busy) return;
-    const full_name = $("agentName").value.trim();
-    if (!full_name) {
+    const agentName = $("agentName").value.trim();
+    if (!agentName) {
       status("Entre le nom et prénom de l'agent.");
       return;
     }
@@ -275,10 +617,13 @@
     try {
       const user = await requireUser();
       const agent = {
-        user_id: user.id,
-        full_name,
-        email: $("agentEmail").value.trim() || null,
-        phone: $("agentPhone").value.trim() || null
+        user_id: activeWorkspaceOwnerId || user.id,
+        nom: agentName,
+        Email: $("agentEmail").value.trim() || null,
+        "Téléphone": $("agentPhone").value.trim() || null,
+        qualification: $("agentQualification").value || null,
+        numero_carte_pro: $("agentCardNumber").value.trim() || null,
+        expiration_carte_pro: $("agentCardExpiry").value || null
       };
 
       const { error } = await db.from("agents").insert(agent);
@@ -287,7 +632,278 @@
       $("agentName").value = "";
       $("agentEmail").value = "";
       $("agentPhone").value = "";
+      $("agentQualification").value = "";
+      $("agentCardNumber").value = "";
+      $("agentCardExpiry").value = "";
       status("Agent enregistré.");
+      await refreshData();
+    } catch (error) {
+      showError(error);
+    } finally {
+      busy = false;
+    }
+  }
+
+ 
+  async function printPlanningPdf() {
+    const button=$("printPlanningBtn");
+    if(button.disabled)return;
+    // Open synchronously from the tap so mobile Safari does not block the print tab.
+    const win=window.open("about:blank","_blank");
+    if(!win){status("Safari a bloqué la fenêtre. Autorise les fenêtres surgissantes puis réessaie.");return;}
+    button.disabled=true;
+    try{
+      const user=await requireUser();
+      const [agentsR,sitesR,shiftsR]=await Promise.all([
+        db.from("agents").select("id,nom,Prenom").eq("user_id",activeWorkspaceOwnerId || user.id),
+        db.from("Site").select("id,Nom").eq("user_id",activeWorkspaceOwnerId || user.id),
+        db.from("planning").select("date_vacation,heure_debut,heure_fin,agent_id,site_id,statut").eq("user_id",activeWorkspaceOwnerId || user.id).order("date_vacation",{ascending:true})
+      ]);
+      for(const r of [agentsR,sitesR,shiftsR])if(r.error)throw r.error;
+      const now=new Date();now.setHours(0,0,0,0);
+      const key=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+      const from=key(now),endDate=new Date(now);endDate.setDate(endDate.getDate()+7);
+      const until=key(endDate),last=new Date(endDate);last.setDate(last.getDate()-1);
+      const shifts=(shiftsR.data||[]).filter(s=>s.date_vacation>=from&&s.date_vacation<until);
+      const esc=v=>String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+      const agents=agentsR.data||[],sites=sitesR.data||[];
+      const rows=shifts.map(s=>{
+        const a=agents.find(x=>String(x.id)===String(s.agent_id)),site=sites.find(x=>String(x.id)===String(s.site_id));
+        return "<tr><td>"+esc(s.date_vacation)+"</td><td>"+esc(String(s.heure_debut||"").slice(0,5))+" – "+esc(String(s.heure_fin||"").slice(0,5))+"</td><td>"+esc(a?[a.Prenom,a.nom].filter(Boolean).join(" "):"À affecter")+"</td><td>"+esc(site?.Nom||"Site à définir")+"</td><td>"+esc(s.statut||"Prévue")+"</td></tr>";
+      }).join("");
+      const logo='<div class="tealogo"><svg viewBox="0 0 100 110" width="76" height="82" xmlns="http://www.w3.org/2000/svg" aria-label="Écusson TEA"><path d="M7 20 L45 5 L45 16 L17 28 L17 49 Q20 75 50 95 Q80 75 83 49 L83 28 L55 16 L55 5 L93 20 L93 49 Q89 83 50 105 Q11 83 7 49 Z" fill="none" stroke="#bd171b" stroke-width="5"/><path d="M20 36 H58 L52 45 H42 V74 L33 69 V45 H20 Z" fill="#111111"/><path d="M50 74 L67 39 L86 74 H74 L67 59 L59 74 Z" fill="#bd171b"/></svg><div class="teaword">T<span>E</span><i>A</i></div><div class="tealine"></div><div class="teatag">GARDIENNAGE ET SÉCURITÉ</div><div class="teaslogan">VOTRE SÉCURITÉ EST LA NÔTRE</div></div>';
+      win.document.open();
+      win.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Planning TEA SÉCURITÉ PRIVÉE</title><style>*{box-sizing:border-box}body{font:13px Arial,sans-serif;color:#172033;margin:24px auto;max-width:1000px;padding:0 20px}header{display:flex;align-items:center;gap:18px;border-bottom:3px solid #bd171b;padding-bottom:14px;margin-bottom:22px}.tealogo{width:280px;max-width:42%;text-align:center;flex-shrink:0}.tealogo svg{display:block;margin:0 auto 2px}.teaword{font-size:48px;font-weight:900;letter-spacing:7px;color:#111;line-height:1}.teaword i{font-style:normal;color:#bd171b}.teaword span{color:#111}.tealine{height:2px;background:#bd171b;margin:8px 0}.teatag{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#111}.teaslogan{font-size:9px;font-weight:800;letter-spacing:1px;color:#bd171b;margin-top:7px}.brand{font-size:24px;font-weight:800;letter-spacing:1px;color:#14213d}.brand span{color:#b18c4a}.sub{font-size:12px;letter-spacing:2px;margin-top:5px;color:#555}.period{background:#f4f1e9;padding:12px;border-left:4px solid #c7a96b;margin-bottom:18px}table{width:100%;border-collapse:collapse}th{background:#14213d;color:white;text-align:left}th,td{padding:10px 8px;border:1px solid #d7dce3}tr:nth-child(even){background:#f7f8fa}.empty{text-align:center;padding:28px;color:#555}footer{margin-top:24px;border-top:1px solid #ddd;padding-top:10px;color:#666;font-size:10px}.actions{display:flex;gap:10px;margin:18px 0}button{padding:12px 16px;border:0;border-radius:8px;background:#14213d;color:white;font-size:15px}@page{size:A4 landscape;margin:12mm}@media print{body{margin:0;padding:0}.actions{display:none}tr{break-inside:avoid}header,.period,table{print-color-adjust:exact;-webkit-print-color-adjust:exact}}</style></head><body><header>'+logo+'<div><div class="sub" style="font-size:17px;font-weight:800;letter-spacing:1px;color:#111">TEA SÉCURITÉ PRIVÉE</div><div>PLANNING HEBDOMADAIRE DES VACATIONS</div></div></header><div class="period"><strong>Période :</strong> '+esc(from)+' au '+esc(key(last))+' &nbsp; | &nbsp; <strong>Vacations :</strong> '+shifts.length+'</div><div class="actions"><button onclick="window.print()">Imprimer / Enregistrer en PDF</button><button onclick="window.close()">Fermer</button></div>'+(shifts.length?'<table><thead><tr><th>Date</th><th>Horaires</th><th>Agent</th><th>Site client</th><th>Statut</th></tr></thead><tbody>'+rows+'</tbody></table>':'<div class="empty">Aucune vacation planifiée pour cette période.</div>')+'<footer>TEA SÉCURITÉ PRIVÉE · Vérifier les affectations avant diffusion.</footer><script>window.addEventListener("load",()=>setTimeout(()=>window.print(),350));<\/script></body></html>');
+      win.document.close();
+      status("Planning prêt à imprimer ou enregistrer en PDF.");
+    }catch(e){win.close();showError(e);}
+    finally{button.disabled=false;}
+  }
+
+  async function sharePlanningWhatsApp() {
+    const button=$("sharePlanningBtn");
+    if(button.disabled)return;
+    button.disabled=true;
+    try {
+      const user=await requireUser();
+      const [agentsR,sitesR,shiftsR]=await Promise.all([
+        db.from("agents").select("id,nom,Prenom").eq("user_id",activeWorkspaceOwnerId || user.id),
+        db.from("Site").select("id,Nom").eq("user_id",activeWorkspaceOwnerId || user.id),
+        db.from("planning").select("date_vacation,heure_debut,heure_fin,agent_id,site_id,statut").eq("user_id",activeWorkspaceOwnerId || user.id).order("date_vacation",{ascending:true})
+      ]);
+      for(const r of [agentsR,sitesR,shiftsR])if(r.error)throw r.error;
+      const now=new Date();now.setHours(0,0,0,0);
+      const key=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+      const from=key(now);const untilDate=new Date(now);untilDate.setDate(untilDate.getDate()+7);const until=key(untilDate);
+      const shifts=(shiftsR.data||[]).filter(s=>s.date_vacation>=from&&s.date_vacation<until);
+      if(!shifts.length){status("Aucune vacation sur les 7 prochains jours à partager.");return;}
+      const agents=agentsR.data||[],sites=sitesR.data||[];
+      const lines=["*TEA SÉCURITÉ PRIVÉE — PLANNING DES VACATIONS*","Période : "+from+" au "+key(new Date(untilDate.getTime()-86400000)),""];
+      for(const s of shifts){
+        const a=agents.find(x=>String(x.id)===String(s.agent_id));
+        const site=sites.find(x=>String(x.id)===String(s.site_id));
+        const agent=a?[a.Prenom,a.nom].filter(Boolean).join(" "):"⚠️ Agent non affecté";
+        const siteName=site?.Nom||"⚠️ Site non défini";
+        lines.push("• "+s.date_vacation+" | "+String(s.heure_debut||"").slice(0,5)+"–"+String(s.heure_fin||"").slice(0,5)+" | "+agent+" | "+siteName+(s.statut?" | "+s.statut:""));
+      }
+      lines.push("","Envoyé depuis VIGENTRA PRO.");
+      const message=lines.join("\n");
+      if(navigator.share){
+        await navigator.share({title:"Planning TEA SÉCURITÉ PRIVÉE",text:message});
+        status("Planning partagé via le menu de partage.");
+      }else{
+        window.location.href="https://wa.me/?text="+encodeURIComponent(message);
+        status("Ouverture de WhatsApp avec le planning.");
+      }
+    }catch(e){
+      if(e&&e.name==="AbortError"){status("Partage annulé.");}
+      else{showError(e);}
+    }finally{button.disabled=false;}
+  }
+
+  async function suggestSmartPlanning() {
+    const output = $("smartPlanningResults");
+    if (busy) return;
+    busy = true;
+    output.replaceChildren();
+    status("Analyse intelligente du planning en cours…");
+    try {
+      const user = await requireUser();
+      const [agentsR, sitesR, shiftsR, unavailableR] = await Promise.all([
+        db.from("agents").select("*").eq("user_id", activeWorkspaceOwnerId || user.id).order("nom"),
+        db.from("Site").select("*").eq("user_id", activeWorkspaceOwnerId || user.id).order("Nom"),
+        db.from("planning").select("*").eq("user_id", activeWorkspaceOwnerId || user.id).order("date_vacation", {ascending:true}),
+        db.from("indisponibilites").select("agent_id,date_debut,date_fin,motif,actif").eq("user_id", activeWorkspaceOwnerId || user.id).eq("actif", true)
+      ]);
+      for (const r of [agentsR,sitesR,shiftsR,unavailableR]) if (r.error) throw r.error;
+      const agents = agentsR.data || [], sites = sitesR.data || [], shifts = shiftsR.data || [], unavailable = unavailableR.data || [];
+      const today = new Date(); today.setHours(0,0,0,0);
+      const todayKey = [today.getFullYear(),String(today.getMonth()+1).padStart(2,"0"),String(today.getDate()).padStart(2,"0")].join("-");
+      const targets = shifts.filter(s => s.date_vacation >= todayKey && s.site_id && !s.agent_id)
+        .sort((a,b)=>(a.date_vacation+a.heure_debut).localeCompare(b.date_vacation+b.heure_debut));
+      if (!targets.length) {
+        output.textContent = "Aucune vacation future avec un site défini et un agent manquant. Les vacations sans site doivent d’abord être complétées manuellement.";
+        status("Analyse terminée.");
+        return;
+      }
+      const mins = t => { const p=String(t||"0:0").split(":").map(Number); return (p[0]||0)*60+(p[1]||0); };
+      const interval = s => {
+        const start = new Date(s.date_vacation+"T"+String(s.heure_debut||"00:00").slice(0,8));
+        const end = new Date(s.date_vacation+"T"+String(s.heure_fin||"00:00").slice(0,8));
+        if (end<=start) end.setDate(end.getDate()+1);
+        return {start,end,minutes:(end-start)/60000};
+      };
+      const workload = new Map(agents.map(a=>[String(a.id),0]));
+      shifts.filter(s=>s.agent_id).forEach(s=>{const k=String(s.agent_id);if(workload.has(k))workload.set(k,workload.get(k)+shiftDurationMinutes(s.heure_debut,s.heure_fin));});
+      const proposed = [];
+      const conflicts = (agentId, target) => {
+        const a=interval(target);
+        const all=[...shifts.filter(s=>String(s.agent_id)===String(agentId)),...proposed.filter(s=>String(s.agent_id)===String(agentId))];
+        if(all.some(s=>{const b=interval(s);return a.start<b.end && b.start<a.end;})) return "chevauchement horaire";
+        const minimumRestMs=11*60*60*1000;
+        const insufficientRest=all.find(s=>{const b=interval(s);return (b.end<=a.start && a.start-b.end<minimumRestMs)||(a.end<=b.start && b.start-a.end<minimumRestMs);});
+        if(insufficientRest) return "repos minimum de 11 heures non respecté";
+        const endKey=[a.end.getFullYear(),String(a.end.getMonth()+1).padStart(2,"0"),String(a.end.getDate()).padStart(2,"0")].join("-");
+        if(unavailable.some(u=>String(u.agent_id)===String(agentId)&&u.date_debut<=endKey&&u.date_fin>=target.date_vacation)) return "indisponibilité déclarée";
+        const agent=agents.find(x=>String(x.id)===String(agentId));
+        if(agent?.expiration_carte_pro && agent.expiration_carte_pro < target.date_vacation) return "carte professionnelle expirée";
+        const required=sites.find(x=>String(x.id)===String(target.site_id))?.qualification_requise;
+        if(required && !agentHasRequiredQualification(agent,required)) return "qualification requise : "+required;
+        return "";
+      };
+      const title=document.createElement("h3"); title.textContent="Propositions d’affectation"; output.appendChild(title);
+      const intro=document.createElement("p"); intro.textContent="Suggestions basées sur les conflits horaires, les indisponibilités, l’expiration de la carte professionnelle et l’équilibre des heures. Rien n’est enregistré sans ta confirmation."; output.appendChild(intro);
+      let count=0;
+      for (const shift of targets) {
+        const site=sites.find(s=>String(s.id)===String(shift.site_id));
+        const box=document.createElement("div"); box.className="item";
+        const head=document.createElement("strong"); head.textContent=shift.date_vacation+" · "+String(shift.heure_debut||"").slice(0,5)+"–"+String(shift.heure_fin||"").slice(0,5)+" · "+(site?.Nom||"Site"); box.appendChild(head);
+        const candidates=agents.map(agent=>({agent,minutes:workload.get(String(agent.id))||0,reason:conflicts(agent.id,shift)}))
+          .filter(x=>!x.reason).sort((a,b)=>a.minutes-b.minutes);
+        if(!candidates.length) {
+          const msg=document.createElement("p");msg.textContent="Aucun agent disponible sans conflit détecté.";box.appendChild(msg);
+        } else {
+          const best=candidates[0], label=document.createElement("p");
+          label.textContent="Suggestion : "+[best.agent.Prenom,best.agent.nom].filter(Boolean).join(" ")+" · charge actuelle estimée : "+formatDuration(best.minutes)+".";
+          box.appendChild(label);
+          const btn=document.createElement("button");btn.type="button";btn.textContent="Confirmer cette affectation";
+          btn.onclick=async()=>{
+            if(!confirm("Affecter "+[best.agent.Prenom,best.agent.nom].filter(Boolean).join(" ")+" à la vacation du "+shift.date_vacation+" ?"))return;
+            btn.disabled=true;
+            try{
+              const fresh=await requireUser();
+              const check=conflicts(best.agent.id,shift);
+              if(check)throw new Error("Affectation annulée : "+check+". Relance l’analyse du planning.");
+              const {error}=await db.from("planning").update({agent_id:Number(best.agent.id)}).eq("id",shift.id).eq("user_id",activeWorkspaceOwnerId || fresh.id).is("agent_id",null);
+              if(error)throw error;
+              status("Affectation enregistrée.");await refreshData();await suggestSmartPlanning();
+            }catch(e){showError(e);btn.disabled=false;}
+          };
+          box.appendChild(btn); proposed.push({...shift,agent_id:best.agent.id});workload.set(String(best.agent.id),best.minutes+interval(shift).minutes);count++;
+        }
+        output.appendChild(box);
+      }
+      status(count+" proposition(s) calculée(s).");
+    } catch(e) { showError(e); output.textContent="Impossible de générer les propositions : "+(e.message||e); }
+    finally { busy=false; }
+  }
+
+  async function addShift() {
+    if (busy) return;
+    const agentId = $("shiftAgent").value;
+    const siteId = $("shiftSite").value;
+    const date = $("shiftDate").value;
+    const start = $("shiftStart").value;
+    const end = $("shiftEnd").value;
+    if (!agentId || !siteId || !date || !start || !end) {
+      status("Complète l'agent, le site, la date et les horaires.");
+      return;
+    }
+    if (start === end) {
+      status("L'heure de fin doit être différente de l'heure de début.");
+      return;
+    }
+    busy = true;
+    try {
+      const user = await requireUser();
+      const startAt = new Date(date + "T" + start + ":00");
+      const endAt = new Date(date + "T" + end + ":00");
+      if (endAt <= startAt) endAt.setDate(endAt.getDate() + 1);
+      const previousDate = new Date(date + "T12:00:00");
+      previousDate.setDate(previousDate.getDate() - 1);
+      const nextDate = new Date(date + "T12:00:00");
+      nextDate.setDate(nextDate.getDate() + 1);
+      const ymd = d => d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+      const { data: existingShifts, error: shiftsError } = await db.from("planning")
+        .select("id,agent_id,date_vacation,heure_debut,heure_fin,site_id")
+        .eq("user_id", activeWorkspaceOwnerId || user.id)
+        .eq("agent_id", Number(agentId))
+        .gte("date_vacation", ymd(previousDate))
+        .lte("date_vacation", ymd(nextDate));
+      if (shiftsError) throw shiftsError;
+      const [agentCheck, siteCheck] = await Promise.all([
+        db.from("agents").select("qualification,autres_qualifications,expiration_carte_pro").eq("id", Number(agentId)).eq("user_id", activeWorkspaceOwnerId || user.id).maybeSingle(),
+        db.from("Site").select("qualification_requise").eq("id", Number(siteId)).eq("user_id", activeWorkspaceOwnerId || user.id).maybeSingle()
+      ]);
+      if (agentCheck.error) throw agentCheck.error;
+      if (siteCheck.error) throw siteCheck.error;
+      if (!agentCheck.data) throw new Error("Agent introuvable dans cette entreprise.");
+      if (!siteCheck.data) throw new Error("Site client introuvable dans cette entreprise.");
+      const requiredQualification = siteCheck.data.qualification_requise;
+      if (requiredQualification && !agentHasRequiredQualification(agentCheck.data, requiredQualification)) {
+        throw new Error("Vacation refusée : ce site exige la qualification " + requiredQualification + ", absente du dossier de l’agent.");
+      }
+      if (agentCheck.data.expiration_carte_pro && agentCheck.data.expiration_carte_pro < date) {
+        throw new Error("Vacation refusée : la carte professionnelle de cet agent est expirée à la date de la vacation.");
+      }
+      const overlaps = (existingShifts || []).find(shift => {
+        const otherStart = new Date(shift.date_vacation + "T" + String(shift.heure_debut).slice(0,8));
+        const otherEnd = new Date(shift.date_vacation + "T" + String(shift.heure_fin).slice(0,8));
+        if (otherEnd <= otherStart) otherEnd.setDate(otherEnd.getDate() + 1);
+        return startAt < otherEnd && otherStart < endAt;
+      });
+      if (overlaps) {
+        const overlapSiteResult = await db.from("Site").select("Nom").eq("id", overlaps.site_id).eq("user_id", activeWorkspaceOwnerId || user.id).maybeSingle();
+        if (overlapSiteResult.error) throw overlapSiteResult.error;
+        throw new Error("Vacation refusée : cet agent a déjà une vacation qui chevauche cet horaire" + (overlapSiteResult.data?.Nom ? " (site : " + overlapSiteResult.data.Nom + ")" : "") + ".");
+      }
+      const minimumRestMs = 11 * 60 * 60 * 1000;
+      const insufficientRest = (existingShifts || []).find(shift => {
+        const otherStart = new Date(shift.date_vacation + "T" + String(shift.heure_debut).slice(0,8));
+        const otherEnd = new Date(shift.date_vacation + "T" + String(shift.heure_fin).slice(0,8));
+        if (otherEnd <= otherStart) otherEnd.setDate(otherEnd.getDate() + 1);
+        return (otherEnd <= startAt && startAt - otherEnd < minimumRestMs) ||
+          (endAt <= otherStart && otherStart - endAt < minimumRestMs);
+      });
+      if (insufficientRest) {
+        throw new Error("Vacation refusée : le repos minimum de 11 heures entre deux vacations ne serait pas respecté.");
+      }
+      const endDateKey = [endAt.getFullYear(), String(endAt.getMonth()+1).padStart(2,"0"), String(endAt.getDate()).padStart(2,"0")].join("-");
+      const { data: unavailable, error: unavailableError } = await db.from("indisponibilites")
+        .select("date_debut,date_fin,motif")
+        .eq("user_id", activeWorkspaceOwnerId || user.id)
+        .eq("agent_id", Number(agentId))
+        .eq("actif", true)
+        .lte("date_debut", endDateKey)
+        .gte("date_fin", date);
+      if (unavailableError) throw unavailableError;
+      if (unavailable && unavailable.length) {
+        throw new Error("Vacation refusée : cet agent est déclaré indisponible sur cette période" + (unavailable[0].motif ? " (" + unavailable[0].motif + ")" : "") + ".");
+      }
+      const { error } = await db.from("planning").insert({
+        user_id: activeWorkspaceOwnerId || user.id,
+        agent_id: Number(agentId),
+        site_id: Number(siteId),
+        date_vacation: date,
+        heure_debut: start,
+        heure_fin: end,
+        statut: "prévue"
+      });
+      if (error) throw error;
+      $("shiftDate").value = "";
+      $("shiftStart").value = "";
+      $("shiftEnd").value = "";
+      status("Vacation enregistrée.");
       await refreshData();
     } catch (error) {
       showError(error);
@@ -307,13 +923,16 @@
     busy = true;
     try {
       const user = await requireUser();
-      const { error } = await db.from("sites").insert({
-        user_id: user.id,
-        name
+      const requiredQualification = $("siteRequiredQualification").value || null;
+      const { error } = await db.from("Site").insert({
+        user_id: activeWorkspaceOwnerId || user.id,
+        Nom: name,
+        qualification_requise: requiredQualification
       });
       if (error) throw error;
 
       $("siteName").value = "";
+      $("siteRequiredQualification").value = "";
       status("Site client enregistré.");
       await refreshData();
     } catch (error) {
@@ -323,11 +942,148 @@
     }
   }
 
-  $("connectBtn").addEventListener("click", connect);
+
+
+  const mc = $("moduleContent");
+  const esc = v => String(v ?? "").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
+  const eur = v => new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"}).format(Number(v||0));
+  const inp=(l,id,t="text",p="")=>'<label>'+l+'</label><input id="'+id+'" type="'+t+'" placeholder="'+p+'">';
+  const ta=(l,id)=>'<label>'+l+'</label><textarea id="'+id+'"></textarea>';
+  const sel=(l,id,opts)=>'<label>'+l+'</label><select id="'+id+'">'+opts.map(o=>'<option value="'+esc(o.v)+'">'+esc(o.l)+'</option>').join("")+'</select>';
+  const btn=(id,l)=>'<button id="'+id+'" type="button">'+l+'</button>';
+  async function rows(t,ord="created_at"){const u=await requireUser();let q=db.from(t).select("*").eq("user_id",activeWorkspaceOwnerId || u.id);if(ord)q=q.order(ord,{ascending:false});const {data,error}=await q.limit(100);if(error)throw error;return data||[];}
+  async function save(t,r,msg){const u=await requireUser();const {error}=await db.from(t).insert({...r,user_id:activeWorkspaceOwnerId || u.id});if(error)throw error;status(msg);}
+  const list=(rs,fn)=>rs.length?rs.map(r=>'<div class="item">'+fn(r)+'</div>').join(""):'<p class="muted">Aucun enregistrement.</p>';
+  function printBusinessDocument(kind, record) {
+    const rows = [
+      ["Numéro", record.numero || record.reference || "—"],
+      ["Client", record.client_nom || "—"],
+      ["Date", record.date_facture || record.created_at?.slice(0,10) || new Date().toISOString().slice(0,10)],
+      ["Échéance / validité", record.echeance || record.date_validite || "—"],
+      ["Prestation", record.description || record.titre || "—"],
+      ["Début du contrat", record.date_debut || "—"],
+      ["Fin du contrat", record.date_fin || "—"],
+      ["Quantité", record.quantite ?? record.heures_mensuelles ?? "—"],
+      ["Prix unitaire HT", record.prix_unitaire_ht != null ? eur(record.prix_unitaire_ht) : (record.taux_horaire_ht != null ? eur(record.taux_horaire_ht) : "—")],
+      ["Montant mensuel estimé HT", record.taux_horaire_ht != null && record.heures_mensuelles != null ? eur(Number(record.taux_horaire_ht)*Number(record.heures_mensuelles)) : "—"],
+      ["Total HT", record.total_ht != null ? eur(record.total_ht) : "—"],
+      ["TVA", record.total_tva != null ? eur(record.total_tva) : "—"],
+      ["Total TTC", record.total_ttc != null ? eur(record.total_ttc) : "—"],
+      ["Statut", record.statut || "—"]
+    ];
+    const invoiceLogo='<div class="tealogo"><svg viewBox="0 0 100 110" width="76" height="82" xmlns="http://www.w3.org/2000/svg" aria-label="Écusson TEA"><path d="M7 20 L45 5 L45 16 L17 28 L17 49 Q20 75 50 95 Q80 75 83 49 L83 28 L55 16 L55 5 L93 20 L93 49 Q89 83 50 105 Q11 83 7 49 Z" fill="none" stroke="#bd171b" stroke-width="5"/><path d="M20 36 H58 L52 45 H42 V74 L33 69 V45 H20 Z" fill="#111"/><path d="M50 74 L67 39 L86 74 H74 L67 59 L59 74 Z" fill="#bd171b"/></svg><div class="teaword">T<span>E</span><i>A</i></div><div class="tealine"></div><div class="teatag">GARDIENNAGE ET SÉCURITÉ</div><div class="teaslogan">VOTRE SÉCURITÉ EST LA NÔTRE</div></div>';
+    const html = '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(kind)+' '+esc(record.numero||record.reference||"")+'</title><style>body{font:14px Arial,sans-serif;color:#172033;max-width:800px;margin:32px auto;padding:0 20px}header{display:flex;align-items:center;gap:22px;border-bottom:3px solid #bd171b;padding-bottom:16px;margin-bottom:24px}.tealogo{width:280px;max-width:42%;text-align:center;flex-shrink:0}.tealogo svg{display:block;margin:0 auto 2px}.teaword{font-size:48px;font-weight:900;letter-spacing:7px;color:#111;line-height:1}.teaword i{font-style:normal;color:#bd171b}.tealine{height:2px;background:#bd171b;margin:8px 0}.teatag{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#111}.teaslogan{font-size:9px;font-weight:800;letter-spacing:1px;color:#bd171b;margin-top:7px}h1{margin:0;color:#14213d;font-size:20px}h2{margin-top:30px}table{width:100%;border-collapse:collapse}td{padding:10px;border-bottom:1px solid #ddd;vertical-align:top}td:first-child{width:36%;color:#555}.total{font-size:20px;font-weight:bold;color:#14213d}footer{margin-top:42px;border-top:1px solid #ddd;padding-top:12px;color:#555;font-size:11px}@media print{body{margin:0 auto;padding:0 8mm}button{display:none}}</style></head><body><header>'+invoiceLogo+'<div><h1>TEA SÉCURITÉ PRIVÉE</h1><p>'+esc(kind)+' · Document à compléter avec les mentions légales de l’entreprise</p></div></header><h2>'+esc(kind)+' '+esc(record.numero||record.reference||"")+'</h2><table>'+rows.map(([k,v])=>'<tr><td>'+esc(k)+'</td><td class="'+(k==="Total TTC"?"total":"")+'">'+esc(String(v))+'</td></tr>').join("")+'</table><footer>TEA SÉCURITÉ PRIVÉE. Avant émission officielle, vérifier les coordonnées légales, le SIRET, les conditions de paiement et les mentions obligatoires.</footer><script>window.addEventListener("load",()=>setTimeout(()=>window.print(),250));<\/script></body></html>';
+    const win=window.open("", "_blank");
+    if(!win){throw new Error("Fenêtre d’impression bloquée. Autorise les fenêtres contextuelles pour VIGENTRA PRO puis réessaie.");}
+    win.document.open();win.document.write(html);win.document.close();
+  }
+  function showAppSection(id){ document.querySelectorAll("#app > section.card").forEach(s=>s.classList.toggle("view-hidden",s.id!==id)); const target=$(id); if(target) target.scrollIntoView({behavior:"smooth",block:"start"}); }
+  async function openModule(n){
+    showAppSection("operationsCard");
+    document.querySelectorAll("[data-module]").forEach(b=>b.classList.toggle("active",b.dataset.module===n));
+    try {
+      if(n==="equipe"){
+        const u=await requireUser();
+        const [{data:members,error},{data:agents,error:agentsError}]=await Promise.all([
+          db.from("vigentra_company_members").select("owner_user_id,member_email,role,status,created_at").eq("owner_user_id",u.id).order("created_at",{ascending:false}),
+          db.from("agents").select("id,nom,Prenom,Email,auth_user_id").eq("user_id",activeWorkspaceOwnerId || u.id).order("nom",{ascending:true})
+        ]);
+        if(error) throw error;
+        if(agentsError) throw agentsError;
+        const agentOptions=(agents||[]).map(a=>'<option value="'+esc(a.id)+'" data-email="'+esc(a.Email||"")+'" '+(a.auth_user_id?'disabled':'')+'>'+esc([a.Prenom,a.nom].filter(Boolean).join(" "))+(a.auth_user_id?' — accès déjà activé':'')+'</option>').join("");
+        const rowsHtml=(members||[]).map(m=>{const isOwner=m.role==="owner"||String(m.member_email||"").toLowerCase()===String(u.email||"").toLowerCase();const canManage=!isOwner&&m.role==="director";return '<div class="item"><b>'+esc(m.member_email)+'</b><p class="muted">Rôle : '+esc(m.role)+' · Statut : '+esc(m.status)+'</p>'+(canManage&&m.status!=="revoked"?'<button type="button" data-revoke-member="'+esc(m.member_email)+'">Révoquer l’accès</button>':'')+(canManage?'<button type="button" class="danger" data-delete-member="'+esc(m.member_email)+'">Supprimer l’accès</button>':(isOwner?'<p class="muted">Compte principal protégé : aucune action de révocation ou suppression.</p>':''))+'</div>'}).join("")||'<p class="muted">Aucune invitation de directeur pour cette entreprise.</p>';
+        mc.innerHTML='<h2>Équipe & accès</h2><div class="item"><b>Agents enregistrés : '+(agents||[]).length+'</b><br><span class="muted">Le compteur est calculé depuis les fiches de ton entreprise.</span></div><p class="muted">Sélectionne une fiche agent, saisis son adresse e-mail et VIGENTRA PRO lui enverra un e-mail d’invitation sécurisé. L’agent devra ouvrir le lien reçu pour activer son compte.</p><label for="agentAccessSelect">Agent à activer</label><select id="agentAccessSelect"><option value="">Choisir un agent</option>'+agentOptions+'</select><label for="agentAccessEmail">Adresse e-mail personnelle de l’agent</label><input id="agentAccessEmail" type="email" autocomplete="email" placeholder="agent@exemple.fr"><button type="button" id="agentAccessInvite">Envoyer un code provisoire par e-mail</button><hr><h3>Accès directeur partagé</h3><p class="muted">Pour inviter un directeur de confiance dans l’espace partagé, utilise son adresse e-mail.</p><label for="teamEmail">E-mail du directeur</label><input id="teamEmail" type="email" autocomplete="email" placeholder="directeur@entreprise.fr"><button type="button" id="teamInvite">Enregistrer l’invitation directeur</button><h3>Invitations et accès directeurs</h3>'+rowsHtml;
+        $("agentAccessSelect").onchange=()=>{const option=$("agentAccessSelect").selectedOptions[0];if(option&&option.dataset.email)$("agentAccessEmail").value=option.dataset.email;};
+        $("agentAccessInvite").onclick=async()=>{const button=$("agentAccessInvite");if(button.disabled)return;const originalText=button.textContent;button.disabled=true;button.textContent="Envoi en cours…";try{const agentId=Number($("agentAccessSelect").value);const email=$("agentAccessEmail").value.trim().toLowerCase();if(!Number.isSafeInteger(agentId)||agentId<=0)throw Error("Choisis une fiche agent.");if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw Error("Saisis une adresse e-mail valide.");status("Vérification du compte et envoi du code…");const result=await db.functions.invoke("send-agent-access-code",{body:{agent_id:agentId,email}});if(result.error){let detail=result.error.message||"Le service d’envoi du code n’a pas répondu.";try{const response=result.error.context;if(response&&typeof response.clone==="function"){const payload=await response.clone().json();if(payload?.error)detail=payload.error;}}catch{}throw Error(detail);}if(result.data?.error)throw Error(result.data.error);status(result.data?.message||"Demande d’envoi du code traitée.");}catch(e){showError(e);status("Échec de l’envoi du code : "+(e?.message||String(e)));}finally{button.disabled=false;button.textContent=originalText;}};
+        $("teamInvite").onclick=async()=>{try{const email=$("teamEmail").value.trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw Error("Saisis une adresse e-mail valide.");if(email===(u.email||"").toLowerCase())throw Error("Cette adresse correspond déjà au compte connecté.");const {error}=await db.from("vigentra_company_members").insert({owner_user_id:activeWorkspaceOwnerId || u.id,member_email:email,role:"director",status:"pending",member_user_id:null});if(error){if(error.code==="23505")throw Error("Une invitation existe déjà pour cette adresse.");throw error;}status("Invitation directeur enregistrée. L’accès sera actif après validation de son compte.");await openModule("equipe");}catch(e){showError(e)}};
+        mc.querySelectorAll("[data-delete-member]").forEach(b=>b.onclick=async()=>{const email=b.dataset.deleteMember;if(!email||email.toLowerCase()===(u.email||"").toLowerCase())return showError(new Error("Le compte principal ne peut pas être supprimé."));if(!confirm("Supprimer définitivement l’invitation et l’accès directeur de "+email+" ? Le compte de connexion de cette personne ne sera pas supprimé."))return;try{const ownerId=activeWorkspaceOwnerId||u.id;const {data,error}=await db.from("vigentra_company_members").delete().eq("owner_user_id",ownerId).eq("member_email",email).eq("role","director").select("member_email");if(error)throw error;if(!data||data.length===0)throw new Error("Aucun accès directeur supprimé. Vérifie les droits et actualise la page.");status("Accès directeur supprimé. Le compte de connexion reste intact.");await openModule("equipe");}catch(e){showError(e)}});
+        mc.querySelectorAll("[data-revoke-member]").forEach(b=>b.onclick=async()=>{if(!confirm("Révoquer l’accès de "+b.dataset.revokeMember+" à l’espace partagé ?"))return;try{const {error}=await db.from("vigentra_company_members").update({status:"revoked"}).eq("owner_user_id",u.id).eq("member_email",b.dataset.revokeMember);if(error)throw error;status("Accès révoqué.");await openModule("equipe");}catch(e){showError(e)}});
+      } else if(n==="journal"){
+        const [a,s,r]=await Promise.all([rows("agents","nom"),rows("Site","Nom"),rows("main_courante")]);
+        mc.innerHTML='<h2>Main courante numérique</h2>'+sel("Type","jt",[{v:"information",l:"Information"},{v:"incident",l:"Incident"},{v:"consigne",l:"Consigne"},{v:"anomalie",l:"Anomalie"}])+inp("Titre","jtitle")+ta("Description","jdesc")+sel("Priorité","jp",[{v:"basse",l:"Basse"},{v:"normale",l:"Normale"},{v:"haute",l:"Haute"},{v:"urgente",l:"Urgente"}])+sel("Agent","ja",[{v:"",l:"Non attribué"},...a.map(x=>({v:x.id,l:[x.Prenom,x.nom].filter(Boolean).join(" ")}))])+sel("Site","js",[{v:"",l:"Non attribué"},...s.map(x=>({v:x.id,l:x.Nom}))])+btn("jbtn","Enregistrer")+'<h3>Historique</h3>'+list(r,x=>'<b>'+esc(x.type)+' · '+esc(x.titre)+'</b><br>'+esc(x.created_at?.slice(0,16).replace("T"," "))+' · '+esc(x.priorite)+'<br>'+esc(x.description));
+        $("jbtn").onclick=async()=>{try{if(!$("jtitle").value.trim()||!$("jdesc").value.trim())throw Error("Renseigne le titre et la description.");await save("main_courante",{type:$("jt").value,titre:$("jtitle").value.trim(),description:$("jdesc").value.trim(),priorite:$("jp").value,agent_id:$("ja").value||null,site_id:$("js").value||null},"Main courante enregistrée.");await openModule(n)}catch(e){showError(e)}};
+      } else if(n==="pointage"){
+        const [a,s,r]=await Promise.all([rows("agents","nom"),rows("Site","Nom"),rows("pointages","pointage_at")]);
+        mc.innerHTML='<h2>Pointage</h2>'+sel("Agent","pa",a.map(x=>({v:x.id,l:[x.Prenom,x.nom].filter(Boolean).join(" ")})))+sel("Site","ps",s.map(x=>({v:x.id,l:x.Nom})))+sel("Action","pt",[{v:"debut",l:"Début de service"},{v:"fin",l:"Fin de service"}])+ta("Note facultative","pn")+btn("pbtn","Enregistrer le pointage")+'<h3>Historique récent</h3>'+list(r,x=>'<b>'+esc(x.type==="debut"?"Début":"Fin")+'</b> · '+esc(x.pointage_at?.slice(0,16).replace("T"," "))+'<br>Agent #'+esc(x.agent_id)+' · site #'+esc(x.site_id)+(x.note?'<br>'+esc(x.note):""));
+        $("pbtn").onclick=async()=>{try{if(!$("pa").value||!$("ps").value)throw Error("Choisis un agent et un site.");await save("pointages",{agent_id:Number($("pa").value),site_id:Number($("ps").value),type:$("pt").value,note:$("pn").value.trim()||null,methode:"bouton"},"Pointage enregistré.");await openModule(n)}catch(e){showError(e)}};
+      } else if(n==="indispo"){
+        const [a,r]=await Promise.all([rows("agents","nom"),rows("indisponibilites","date_debut")]);
+        mc.innerHTML='<h2>Indisponibilités des agents</h2>'+sel("Agent","ia",a.map(x=>({v:x.id,l:[x.Prenom,x.nom].filter(Boolean).join(" ")})))+inp("Date de début","id1","date")+inp("Date de fin","id2","date")+inp("Motif","im","text","Congé, repos, formation…")+btn("ibtn","Enregistrer")+'<h3>Enregistrées</h3>'+list(r,x=>'<b>Agent #'+esc(x.agent_id)+'</b> · '+esc(x.date_debut)+' → '+esc(x.date_fin)+'<br>'+esc(x.motif));
+        $("ibtn").onclick=async()=>{try{if(!$("ia").value||!$("id1").value||!$("id2").value||$("id2").value<$("id1").value)throw Error("Vérifie l’agent et les dates.");await save("indisponibilites",{agent_id:Number($("ia").value),date_debut:$("id1").value,date_fin:$("id2").value,motif:$("im").value.trim()||"Indisponibilité",actif:true},"Indisponibilité enregistrée.");await openModule(n)}catch(e){showError(e)}};
+      } else if(n==="rondes"){
+        const [s,a,p,r]=await Promise.all([rows("Site","Nom"),rows("agents","nom"),rows("ronde_points"),rows("ronde_passages","passage_at")]);
+        mc.innerHTML='<h2>Rondes de sécurité</h2><h3>Créer un point de contrôle</h3>'+sel("Site","rs",s.map(x=>({v:x.id,l:x.Nom})))+inp("Nom du point","rn")+inp("Code QR facultatif","rc")+btn("rbtn","Créer le point")+'<h3>Enregistrer un passage</h3>'+sel("Point","rp",p.map(x=>({v:x.id,l:x.nom+" — site #"+x.site_id})))+sel("Agent","ra",a.map(x=>({v:x.id,l:[x.Prenom,x.nom].filter(Boolean).join(" ")})))+ta("Observation","ro")+btn("rpbtn","Confirmer le passage")+'<h3>Points</h3>'+list(p,x=>'<b>'+esc(x.nom)+'</b> · site #'+esc(x.site_id))+'<h3>Passages récents</h3>'+list(r,x=>'<b>Point #'+esc(x.point_id)+'</b> · agent #'+esc(x.agent_id)+'<br>'+esc(x.passage_at?.slice(0,16).replace("T"," "))+(x.note?'<br>'+esc(x.note):""));
+        $("rbtn").onclick=async()=>{try{if(!$("rs").value||!$("rn").value.trim())throw Error("Choisis le site et le nom du point.");await save("ronde_points",{site_id:Number($("rs").value),nom:$("rn").value.trim(),code:$("rc").value.trim()||null,actif:true},"Point de ronde créé.");await openModule(n)}catch(e){showError(e)}};
+        $("rpbtn").onclick=async()=>{try{if(!$("rp").value||!$("ra").value)throw Error("Choisis un point et un agent.");await save("ronde_passages",{point_id:Number($("rp").value),agent_id:Number($("ra").value),note:$("ro").value.trim()||null},"Passage de ronde enregistré.");await openModule(n)}catch(e){showError(e)}};
+
+      } else if(n==="clients"){
+        const r=await rows("clients");
+        mc.innerHTML='<h2>Fichier clients</h2>'+inp("Raison sociale","crs")+inp("SIRET","csiret")+inp("Adresse","cad")+inp("Code postal","cp")+inp("Ville","cv")+inp("Nom du contact","ccn")+inp("E-mail","cem","email")+inp("Téléphone","ctel","tel")+ta("Notes","cnotes")+btn("cSave","Créer le client")+'<h3>Clients enregistrés</h3>'+list(r,x=>'<b>'+esc(x.raison_sociale)+'</b>'+(x.siret?'<br>SIRET : '+esc(x.siret):"")+'<br>'+esc([x.adresse,x.code_postal,x.ville].filter(Boolean).join(", "))+'<br>'+esc(x.contact_nom||"")+' · '+esc(x.telephone||"")+' · '+esc(x.email||"")+(x.notes?'<br>'+esc(x.notes):"")+'<br><button type="button" data-client-edit="'+esc(x.id)+'">Modifier</button> <button type="button" class="danger" data-client-delete="'+esc(x.id)+'">Supprimer</button>');
+        mc.querySelectorAll("[data-client-edit]").forEach(b=>b.onclick=async()=>{try{const x=r.find(z=>String(z.id)===b.dataset.clientEdit);if(!x)return;const raison=prompt("Raison sociale",x.raison_sociale||"");if(raison===null)return;if(!raison.trim())throw Error("La raison sociale est obligatoire.");const siret=prompt("SIRET",x.siret||"");if(siret===null)return;const adresse=prompt("Adresse",x.adresse||"");if(adresse===null)return;const code=prompt("Code postal",x.code_postal||"");if(code===null)return;const ville=prompt("Ville",x.ville||"");if(ville===null)return;const contact=prompt("Nom du contact",x.contact_nom||"");if(contact===null)return;const email=prompt("E-mail",x.email||"");if(email===null)return;const telephone=prompt("Téléphone",x.telephone||"");if(telephone===null)return;const notes=prompt("Notes",x.notes||"");if(notes===null)return;const u=await requireUser();const {error}=await db.from("clients").update({raison_sociale:raison.trim(),siret:siret.trim()||null,adresse:adresse.trim()||null,code_postal:code.trim()||null,ville:ville.trim()||null,contact_nom:contact.trim()||null,email:email.trim()||null,telephone:telephone.trim()||null,notes:notes.trim()||null}).eq("id",x.id).eq("user_id",activeWorkspaceOwnerId || u.id);if(error)throw error;status("Client modifié.");await openModule(n)}catch(e){showError(e)}});
+        mc.querySelectorAll("[data-client-delete]").forEach(b=>b.onclick=async()=>{if(!confirm("Supprimer ce client ?"))return;try{const u=await requireUser();const {error}=await db.from("clients").delete().eq("id",Number(b.dataset.clientDelete)).eq("user_id",activeWorkspaceOwnerId || u.id);if(error)throw error;status("Client supprimé.");await openModule(n)}catch(e){showError(e)}});
+        $("cSave").onclick=async()=>{try{if(!$("crs").value.trim())throw Error("La raison sociale est obligatoire.");await save("clients",{raison_sociale:$("crs").value.trim(),siret:$("csiret").value.trim()||null,adresse:$("cad").value.trim()||null,code_postal:$("cp").value.trim()||null,ville:$("cv").value.trim()||null,contact_nom:$("ccn").value.trim()||null,email:$("cem").value.trim()||null,telephone:$("ctel").value.trim()||null,notes:$("cnotes").value.trim()||null},"Client enregistré.");await openModule(n)}catch(e){showError(e)}};
+      } else if(n==="contrats"){
+        const [cl,r]=await Promise.all([rows("clients"),rows("contrats")]);
+        mc.innerHTML='<h2>Contrats clients</h2>'+sel("Client","ktClient",[{v:"",l:"Sans client associé"},...cl.map(x=>({v:x.id,l:x.raison_sociale}))])+inp("Référence du contrat","ktRef")+inp("Intitulé / chantier","ktTitle")+inp("Date de début","ktStart","date")+inp("Date de fin","ktEnd","date")+inp("Tarif horaire HT (€)","ktRate","number")+inp("Heures prévues par mois","ktHours","number")+sel("Statut","ktStatus",[{v:"brouillon",l:"Brouillon"},{v:"actif",l:"Actif"},{v:"termine",l:"Terminé"},{v:"resilie",l:"Résilié"}])+ta("Notes et conditions","ktNotes")+btn("ktSave","Enregistrer le contrat")+'<h3>Contrats</h3>'+list(r,x=>'<b>'+esc(x.reference)+' · '+esc(x.titre)+'</b><br>'+esc(x.statut)+' · '+esc(x.date_debut||"sans date")+' → '+esc(x.date_fin||"sans date")+'<br>'+eur(x.taux_horaire_ht)+'/h HT · '+esc(x.heures_mensuelles)+' h/mois'+(x.notes?'<br>'+esc(x.notes):"")+'<br><button type="button" data-contract-print="'+esc(x.id)+'">Imprimer contrat / PDF</button> <button type="button" data-contract-edit="'+esc(x.id)+'">Modifier</button> <button type="button" class="danger" data-contract-delete="'+esc(x.id)+'">Supprimer</button>');
+        mc.querySelectorAll("[data-contract-print]").forEach(b=>b.onclick=()=>{try{const x=r.find(z=>String(z.id)===b.dataset.contractPrint);if(x){const client=cl.find(z=>String(z.id)===String(x.client_id));printBusinessDocument("CONTRAT", {...x,client_nom:client?.raison_sociale||"Client à préciser",numero:x.reference})}}catch(e){showError(e)}});
+        mc.querySelectorAll("[data-contract-edit]").forEach(b=>b.onclick=async()=>{try{const x=r.find(z=>String(z.id)===b.dataset.contractEdit);if(!x)return;const title=prompt("Intitulé / chantier",x.titre||"");if(title===null)return;if(!title.trim())throw Error("L’intitulé est obligatoire.");const statusValue=prompt("Statut (brouillon, actif, termine, resilie)",x.statut||"brouillon");if(statusValue===null)return;if(!["brouillon","actif","termine","resilie"].includes(statusValue))throw Error("Statut invalide.");const rate=prompt("Tarif horaire HT (€)",String(x.taux_horaire_ht??0));if(rate===null)return;const hours=prompt("Heures mensuelles",String(x.heures_mensuelles??0));if(hours===null)return;if(!Number.isFinite(Number(rate))||Number(rate)<0||!Number.isFinite(Number(hours))||Number(hours)<0)throw Error("Tarif ou heures invalides.");const u=await requireUser();const {error}=await db.from("contrats").update({titre:title.trim(),statut:statusValue,taux_horaire_ht:Number(rate),heures_mensuelles:Number(hours)}).eq("id",x.id).eq("user_id",activeWorkspaceOwnerId || u.id);if(error)throw error;status("Contrat modifié.");await openModule(n)}catch(e){showError(e)}});
+        mc.querySelectorAll("[data-contract-delete]").forEach(b=>b.onclick=async()=>{if(!confirm("Supprimer ce contrat ?"))return;try{const u=await requireUser();const {error}=await db.from("contrats").delete().eq("id",Number(b.dataset.contractDelete)).eq("user_id",activeWorkspaceOwnerId || u.id);if(error)throw error;status("Contrat supprimé.");await openModule(n)}catch(e){showError(e)}});
+        $("ktSave").onclick=async()=>{try{if(!$("ktRef").value.trim()||!$("ktTitle").value.trim())throw Error("Référence et intitulé obligatoires.");if(Number($("ktRate").value||0)<0||Number($("ktHours").value||0)<0)throw Error("Les montants et heures ne peuvent pas être négatifs.");await save("contrats",{client_id:$("ktClient").value?Number($("ktClient").value):null,reference:$("ktRef").value.trim(),titre:$("ktTitle").value.trim(),date_debut:$("ktStart").value||null,date_fin:$("ktEnd").value||null,taux_horaire_ht:Number($("ktRate").value||0),heures_mensuelles:Number($("ktHours").value||0),statut:$("ktStatus").value,notes:$("ktNotes").value.trim()||null},"Contrat enregistré.");await openModule(n)}catch(e){showError(e)}};
+      } else if(n==="devis"){
+        const [cl,r]=await Promise.all([rows("clients"),rows("devis")]);
+        mc.innerHTML='<h2>Devis commerciaux</h2>'+inp("Numéro du devis","dn","text","DEV-2026-001")+sel("Client","dc",[{v:"",l:"Choisir un client"},...cl.map(x=>({v:x.id,l:x.raison_sociale}))])+inp("Quantité (heures ou forfait)","dq","number")+inp("Prix unitaire HT (€)","dp","number")+inp("TVA (%)","dv","number")+inp("Validité jusqu’au","ddue","date")+ta("Description de la prestation","ddesc")+btn("dSave","Créer le devis")+'<h3>Devis enregistrés</h3>'+list(r,x=>'<b>'+esc(x.numero)+' · '+esc(x.client_nom)+'</b><br>'+esc(x.description)+'<br>'+esc(x.statut)+' · '+eur(x.total_ht)+' HT · TVA '+eur(x.total_tva)+' · '+eur(x.total_ttc)+' TTC<br><button type="button" data-quote-print="'+esc(x.id)+'">Imprimer devis / PDF</button> <button type="button" data-quote-status="'+esc(x.id)+'" data-status="envoye">Marquer envoyé</button> <button type="button" data-quote-status="'+esc(x.id)+'" data-status="accepte">Accepter</button> <button type="button" data-quote-status="'+esc(x.id)+'" data-status="refuse">Refuser</button> <button type="button" class="danger" data-quote-delete="'+esc(x.id)+'">Supprimer</button>');
+        mc.querySelectorAll("[data-quote-print]").forEach(b=>b.onclick=()=>{try{const x=r.find(z=>String(z.id)===b.dataset.quotePrint);if(x)printBusinessDocument("DEVIS",x)}catch(e){showError(e)}});
+        mc.querySelectorAll("[data-quote-status]").forEach(b=>b.onclick=async()=>{try{const u=await requireUser();const {error}=await db.from("devis").update({statut:b.dataset.status}).eq("id",Number(b.dataset.quoteStatus)).eq("user_id",activeWorkspaceOwnerId || u.id);if(error)throw error;status("Statut du devis mis à jour.");await openModule(n)}catch(e){showError(e)}});
+        mc.querySelectorAll("[data-quote-delete]").forEach(b=>b.onclick=async()=>{if(!confirm("Supprimer ce devis ?"))return;try{const u=await requireUser();const {error}=await db.from("devis").delete().eq("id",Number(b.dataset.quoteDelete)).eq("user_id",activeWorkspaceOwnerId || u.id);if(error)throw error;status("Devis supprimé.");await openModule(n)}catch(e){showError(e)}});
+        $("dSave").onclick=async()=>{try{const client=cl.find(x=>String(x.id)===$("dc").value),q=Number($("dq").value),p=Number($("dp").value),v=Number($("dv").value||20);if(!$("dn").value.trim()||!client||!(q>0)||p<0||v<0||v>100)throw Error("Choisis un client et vérifie numéro, quantité, prix et TVA.");const ht=q*p,tva=ht*v/100;await save("devis",{numero:$("dn").value.trim(),client_id:client.id,client_nom:client.raison_sociale,description:$("ddesc").value.trim(),quantite:q,prix_unitaire_ht:p,taux_tva:v,total_ht:ht,total_tva:tva,total_ttc:ht+tva,statut:"brouillon",date_validite:$("ddue").value||null},"Devis créé en brouillon.");await openModule(n)}catch(e){showError(e)}};
+      } else if(n==="finance"){
+        const [f,c]=await Promise.all([rows("factures"),rows("charges_entreprise","date_charge")]);
+        const ht=f.filter(x=>x.statut!=="annulee").reduce((a,x)=>a+Number(x.total_ht||0),0),paid=f.filter(x=>x.statut==="payee").reduce((a,x)=>a+Number(x.total_ttc||0),0),cost=c.reduce((a,x)=>a+Number(x.montant_ht||0),0);
+        mc.innerHTML='<h2>Finances TEA</h2><div class="item">Facturation HT : <b>'+eur(ht)+'</b> · Payé TTC : <b>'+eur(paid)+'</b> · Charges HT : <b>'+eur(cost)+'</b> · Écart indicatif : <b>'+eur(ht-cost)+'</b></div><h3>Créer une facture</h3>'+inp("Numéro","fn","text","TEA-2026-001")+inp("Client","fc")+inp("Description","fd")+sel("Type","ft",[{v:"heures",l:"À l’heure"},{v:"forfait",l:"Forfait"}])+inp("Quantité","fq","number")+inp("Prix unitaire HT (€)","fp","number")+inp("TVA (%)","fv","number")+inp("Échéance","fe","date")+btn("fbtn","Enregistrer la facture")+'<h3>Factures</h3>'+list(f,x=>'<b>'+esc(x.numero)+' · '+esc(x.client_nom)+'</b><br>'+esc(x.description)+' · '+eur(x.total_ttc)+' TTC · '+esc(x.statut)+'<br><button type="button" data-invoice-print="'+esc(x.id)+'">Imprimer facture / PDF</button> <button type="button" data-invoice-paid="'+esc(x.id)+'">Marquer payée</button> <button type="button" data-invoice-sent="'+esc(x.id)+'">Marquer envoyée</button> <button type="button" data-invoice-draft="'+esc(x.id)+'">Brouillon</button>')+'<hr><h3>Ajouter une charge</h3>'+inp("Date","cd","date")+sel("Catégorie","cc",[{v:"salaires",l:"Salaires"},{v:"carburant",l:"Carburant"},{v:"materiel",l:"Matériel"},{v:"assurance",l:"Assurance"},{v:"formation",l:"Formation"},{v:"autre",l:"Autre"}])+inp("Description","cdesc")+inp("Montant HT (€)","cam","number")+btn("cbtn","Enregistrer la charge")+'<h3>Charges</h3>'+list(c,x=>'<b>'+esc(x.date_charge)+' · '+esc(x.categorie)+'</b> · '+esc(x.description)+' · '+eur(x.montant_ht));
+        mc.querySelectorAll("[data-invoice-print]").forEach(b=>b.onclick=()=>{try{const x=f.find(z=>String(z.id)===b.dataset.invoicePrint);if(x)printBusinessDocument("FACTURE",x)}catch(e){showError(e)}});
+        mc.querySelectorAll("[data-invoice-paid]").forEach(b=>b.onclick=async()=>{try{const {error}=await db.from("factures").update({statut:"payee"}).eq("id",Number(b.dataset.invoicePaid)).eq("user_id",activeWorkspaceOwnerId || (await requireUser()).id);if(error)throw error;status("Facture marquée payée.");await openModule(n)}catch(e){showError(e)}});
+        mc.querySelectorAll("[data-invoice-sent]").forEach(b=>b.onclick=async()=>{try{const {error}=await db.from("factures").update({statut:"envoyee"}).eq("id",Number(b.dataset.invoiceSent)).eq("user_id",activeWorkspaceOwnerId || (await requireUser()).id);if(error)throw error;status("Facture marquée envoyée.");await openModule(n)}catch(e){showError(e)}});
+        mc.querySelectorAll("[data-invoice-draft]").forEach(b=>b.onclick=async()=>{try{const {error}=await db.from("factures").update({statut:"brouillon"}).eq("id",Number(b.dataset.invoiceDraft)).eq("user_id",activeWorkspaceOwnerId || (await requireUser()).id);if(error)throw error;status("Facture remise en brouillon.");await openModule(n)}catch(e){showError(e)}});
+        $("fbtn").onclick=async()=>{try{const q=Number($("fq").value),p=Number($("fp").value),v=Number($("fv").value||20);if(!$("fn").value.trim()||!$("fc").value.trim()||!(q>0)||p<0||v<0||v>100)throw Error("Vérifie numéro, client, quantité, prix et TVA.");const total=q*p,tva=total*v/100;await save("factures",{numero:$("fn").value.trim(),client_nom:$("fc").value.trim(),description:$("fd").value.trim(),type_facturation:$("ft").value,quantite:q,prix_unitaire_ht:p,taux_tva:v,total_ht:total,total_tva:tva,total_ttc:total+tva,statut:"brouillon",echeance:$("fe").value||null},"Facture créée en brouillon.");await openModule(n)}catch(e){showError(e)}};
+        $("cbtn").onclick=async()=>{try{const a=Number($("cam").value);if(!$("cdesc").value.trim()||!(a>=0))throw Error("Renseigne description et montant.");await save("charges_entreprise",{date_charge:$("cd").value||new Date().toISOString().slice(0,10),categorie:$("cc").value,description:$("cdesc").value.trim(),montant_ht:a},"Charge enregistrée.");await openModule(n)}catch(e){showError(e)}};
+      } else if(n==="conformite"){
+ const items=[
+ {code:"autorisation",title:"Autorisation d’exercice CNAPS de l’entreprise",cat:"CNAPS",desc:"Confirmer le titre valide pour l’activité et chaque établissement concerné.",url:"https://www.cnaps.interieur.gouv.fr/Demarches-en-ligne/Vous-etes-une-entreprise/Agreer-votre-entreprise-de-securite-privee"},
+ {code:"dirigeants",title:"Agrément des dirigeants et associés concernés",cat:"CNAPS",desc:"Vérifier les agréments requis et anticiper les renouvellements.",url:"https://www.cnaps.interieur.gouv.fr/FAQ/Dirigeants-et-entreprises"},
+ {code:"cartes",title:"Cartes professionnelles des agents",cat:"Personnel",desc:"Contrôler la validité et le périmètre d’activité avant chaque affectation.",url:"https://www.cnaps.interieur.gouv.fr/"},
+ {code:"qualifications",title:"Qualifications exigées par mission et par site",cat:"Personnel",desc:"Vérifier APS, SSIAP, SST et toute qualification requise par la prestation ou le site.",url:"https://www.legifrance.gouv.fr/codes/"},
+ {code:"contrats",title:"Contrats clients et consignes de site",cat:"Contrats & exploitation",desc:"Vérifier périmètre, horaires, responsabilités, consignes et documents contractuels à jour.",url:"https://www.legifrance.gouv.fr/codes/"},
+ {code:"sous_traitance",title:"Contrôle préalable des sous-traitants",cat:"Contrats & exploitation",desc:"Vérifier autorisations, agréments, cartes des agents et obligations applicables avant tout recours.",url:"https://cnaps.interieur.gouv.fr/Publications/Jurisprudence/Sous-traitance-d-une-activite-privee-de-securite-et-autorisation-d-exercice-d-une-entreprise"},
+ {code:"temps_travail",title:"Temps de travail, repos et amplitudes",cat:"Droit social",desc:"Contrôler les durées, repos, heures supplémentaires, travail de nuit et règles conventionnelles applicables.",url:"https://www.service-public.fr/particuliers/vosdroits/F1911"},
+ {code:"pointages",title:"Pointages et heures réellement effectuées",cat:"Droit social",desc:"Comparer les heures prévues et réalisées, tracer les corrections et fiabiliser les éléments transmis à la paie.",url:"https://www.legifrance.gouv.fr/"},
+ {code:"main_courante",title:"Main courante, incidents et traçabilité",cat:"Exploitation",desc:"Consigner les faits de façon objective, avec accès limité et consignes adaptées au site.",url:"https://www.legifrance.gouv.fr/codes/"},
+ {code:"rgpd",title:"RGPD, accès et conservation des données",cat:"Données & sécurité",desc:"Limiter les accès, fixer des durées de conservation et informer les salariés des dispositifs de contrôle.",url:"https://www.cnil.fr/fr/controle-de-lactivite-des-personnes-employees"},
+ {code:"sauvegardes",title:"Sauvegarde et test de restauration",cat:"Données & sécurité",desc:"Vérifier les sauvegardes et tester périodiquement la restauration des données essentielles.",url:"https://supabase.com/dashboard/project/pqpoxbsudbydsppqoxon"}
+ ];
+ const records=await rows("conformite_suivi","updated_at"),by=Object.fromEntries(records.map(x=>[x.code,x]));
+ const opts=[["a_verifier","À vérifier"],["en_cours","En cours"],["conforme","Vérifié conforme"],["non_applicable","Non applicable"]];
+ mc.innerHTML='<h2>Conformité réglementaire & qualité</h2><div class="item"><b>Checklist de pilotage TEA SÉCURITÉ PRIVÉE</b><p>Outil de suivi interne : un statut « vérifié conforme » reflète votre déclaration, pas une certification juridique automatique. Confirmez les obligations applicables selon l’activité, le contrat et les textes à jour.</p><p>À vérifier : '+items.filter(x=>(by[x.code]?.statut||"a_verifier")==="a_verifier").length+' · En cours : '+items.filter(x=>by[x.code]?.statut==="en_cours").length+' · Vérifiés : '+items.filter(x=>by[x.code]?.statut==="conforme").length+'</p></div>'+items.map(x=>{const r=by[x.code]||{};return '<div class="item" style="margin:12px 0;padding:14px"><p class="eyebrow">'+esc(x.cat)+'</p><h3>'+esc(x.title)+'</h3><p>'+esc(x.desc)+'</p><p><a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">Source officielle ↗</a></p><label>Statut</label><select data-cs="'+x.code+'">'+opts.map(o=>'<option value="'+o[0]+'" '+((r.statut||"a_verifier")===o[0]?"selected":"")+'>'+o[1]+'</option>').join("")+'</select><label>Prochaine date de contrôle</label><input type="date" data-cd="'+x.code+'" value="'+esc(r.date_echeance||"")+'"><label>Note de suivi</label><textarea rows="2" data-cn="'+x.code+'" placeholder="Action, document de référence, responsable…">'+esc(r.notes||"")+'</textarea><button type="button" data-csave="'+x.code+'">Enregistrer</button><small class="muted">Dernière mise à jour : '+esc(r.updated_at?new Date(r.updated_at).toLocaleString("fr-FR"):"non enregistré")+'</small></div>'}).join("")+'<p class="muted">Références : <a href="https://www.cnaps.interieur.gouv.fr/" target="_blank" rel="noopener noreferrer">CNAPS</a> · <a href="https://www.legifrance.gouv.fr/codes/" target="_blank" rel="noopener noreferrer">Légifrance</a> · <a href="https://www.cnil.fr/" target="_blank" rel="noopener noreferrer">CNIL</a></p>';
+ mc.querySelectorAll("[data-csave]").forEach(b=>b.onclick=async()=>{try{const u=await requireUser(),code=b.dataset.csave,{error}=await db.from("conformite_suivi").upsert({user_id:activeWorkspaceOwnerId || u.id,code,statut:mc.querySelector('[data-cs="'+code+'"]').value,date_echeance:mc.querySelector('[data-cd="'+code+'"]').value||null,notes:mc.querySelector('[data-cn="'+code+'"]').value.trim(),updated_at:new Date().toISOString()},{onConflict:"user_id,code"});if(error)throw error;status("Suivi conformité enregistré.");await openModule("conformite")}catch(e){showError(e)}});
+ } else if(n==="exports"){
+        const [a,s,p,f,c,j,cl,ct,dv]=await Promise.all([rows("agents","nom"),rows("Site","Nom"),rows("planning","date_vacation"),rows("factures"),rows("charges_entreprise","date_charge"),rows("main_courante"),rows("clients"),rows("contrats"),rows("devis")]);
+        const csv=rs=>{if(!rs.length)return "";const keys=[...new Set(rs.flatMap(x=>Object.keys(x)))];return [keys.join(";"),...rs.map(x=>keys.map(k=>'"'+String(x[k]??"").replace(/"/g,'""')+'"').join(";"))].join("\r\n");};
+        const dl=(name,rs)=>{const u=URL.createObjectURL(new Blob(["\ufeff"+csv(rs)],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=u;a.download="vigentra-"+name+".csv";a.click();URL.revokeObjectURL(u)};
+        mc.innerHTML='<h2>Exports et documents</h2><p>Export des 100 derniers enregistrements de chaque module vers Excel ou Numbers. Le bouton PDF ouvre la fenêtre d’impression de l’iPhone ou de l’ordinateur.</p>'+btn("printPdf","Imprimer / enregistrer en PDF")+btn("ea","Exporter agents")+btn("es","Exporter sites")+btn("ep","Exporter planning")+btn("ef","Exporter factures")+btn("ec","Exporter charges")+btn("ej","Exporter main courante")+btn("ecl","Exporter clients")+btn("ekt","Exporter contrats")+btn("edv","Exporter devis");
+        $("printPdf").onclick=()=>window.print();
+        [["ea","agents",a],["es","sites",s],["ep","planning",p],["ef","factures",f],["ec","charges",c],["ej","main-courante",j],["ecl","clients",cl],["ekt","contrats",ct],["edv","devis",dv]].forEach(([id,name,data])=>$(id).onclick=()=>dl(name,data));
+      }
+    } catch(e){showError(e);mc.innerHTML='<div class="item">Erreur de chargement : '+esc(e.message)+'</div>';}
+  }
+  document.querySelectorAll("[data-module]").forEach(b=>b.addEventListener("click",()=>{openModule(b.dataset.module);document.querySelectorAll(".quick-menu [data-module]").forEach(x=>x.classList.toggle("active",x===b));}));
+  document.querySelectorAll("[data-scroll]").forEach(b=>b.addEventListener("click",()=>{showAppSection(b.dataset.scroll);document.querySelectorAll("[data-scroll]").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".quick-menu [data-module]").forEach(x=>x.classList.remove("active"));}));
   $("loginBtn").addEventListener("click", () => login(false));
   $("signupBtn").addEventListener("click", () => login(true));
   $("addAgentBtn").addEventListener("click", addAgent);
   $("addSiteBtn").addEventListener("click", addSite);
+  $("addShiftBtn").addEventListener("click", addShift);
+  $("sharePlanningBtn").addEventListener("click", sharePlanningWhatsApp);
+  $("printPlanningBtn").addEventListener("click", printPlanningPdf);
+  $("smartPlanningBtn").addEventListener("click", suggestSmartPlanning);
   $("refreshBtn").addEventListener("click", refreshData);
   $("logoutBtn").addEventListener("click", async () => {
     try {
@@ -341,10 +1097,7 @@
     }
   });
 
-  $("configUrl").value = "";
-  $("configKey").value = "";
-
-  status("Entre l'URL et la clé publique de Supabase.");
+  connect();
 })();
 </script>
 </body>
