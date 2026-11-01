@@ -18,11 +18,12 @@
 5. Un utilisateur d’une autre société ne peut pas lire les données de TEA.
 6. Un agent sans qualification valide ne peut pas être affecté à une vacation qui l’exige, ou l’affectation affiche un blocage explicite.
 7. Une vacation en conflit est signalée avant validation.
-8. Les heures de nuit traversant minuit sont calculées selon une règle métier documentée.
-9. Un échec réseau ne doit pas afficher à tort une opération comme réussie.
-10. Les exports respectent les filtres choisis et ne contiennent pas les données d’autres utilisateurs.
-11. Déconnexion et expiration de session retirent l’accès aux écrans privés.
-12. Sauvegarde puis restauration de test reproduisent les données attendues sans doublons.
+8. Le schéma actif impose `planning.agent_id` et `planning.site_id` (`NOT NULL`) : l’interface doit bloquer l’enregistrement si l’un des deux manque. Les vacations « à couvrir » nécessitent une migration de base séparément validée.
+9. Les heures de nuit traversant minuit sont calculées selon une règle métier documentée.
+10. Un échec réseau ne doit pas afficher à tort une opération comme réussie.
+11. Les exports respectent les filtres choisis et ne contiennent pas les données d’autres utilisateurs.
+12. Déconnexion et expiration de session retirent l’accès aux écrans privés.
+13. Sauvegarde puis restauration de test reproduisent les données attendues sans doublons.
 
 ## Protection des données personnelles
 - Définir qui peut accéder aux coordonnées et documents des agents.
