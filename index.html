@@ -399,17 +399,33 @@
     }
     const cards = shifts.map(s => {
       const site = siteMap[s.site_id] || {};
-      return '<div class="item"><b>'+esc(s.date_vacation)+'</b> · '+esc(String(s.heure_debut||"").slice(0,5))+' – '+esc(String(s.heure_fin||"").slice(0,5))+'<p>'+esc(site.Nom || "Site non renseigné")+'</p><p class="muted">Planning en lecture seule.</p><div class="grid"><button type="button" data-agent-punch="debut" data-shift="'+esc(s.id)+'">Pointer début</button><button type="button" class="secondary" data-agent-punch="fin" data-shift="'+esc(s.id)+'">Pointer fin</button></div><label>Transmission main courante</label><textarea id="agentNote'+esc(s.id)+'" placeholder="Événement ou consigne"></textarea><button type="button" data-agent-log="'+esc(s.id)+'">Enregistrer la transmission</button></div>';
+      const response = s.reponse_agent || "en_attente";
+      const responseLabel = response === "acceptee" ? "Vacation acceptée" : response === "refusee" ? "Vacation refusée" : "Réponse attendue";
+      const responseControls = response === "en_attente"
+        ? '<div class="grid"><button type="button" data-agent-response="acceptee" data-shift="'+esc(s.id)+'">Accepter la vacation</button><button type="button" class="danger" data-agent-response="refusee" data-shift="'+esc(s.id)+'">Refuser</button></div>'
+        : '<p class="muted">'+responseLabel+'</p>';
+      return '<div class="item"><b>'+esc(s.date_vacation)+'</b> · '+esc(String(s.heure_debut||"").slice(0,5))+' – '+esc(String(s.heure_fin||"").slice(0,5))+'<p>'+esc(site.Nom || "Site non renseigné")+'</p><p><b>'+responseLabel+'</b></p>'+responseControls+'<div class="grid"><button type="button" data-agent-punch="debut" data-shift="'+esc(s.id)+'">Pointer début</button><button type="button" class="secondary" data-agent-punch="fin" data-shift="'+esc(s.id)+'">Pointer fin</button></div><label>Transmission main courante</label><textarea id="agentNote'+esc(s.id)+'" placeholder="Événement ou consigne"></textarea><button type="button" data-agent-log="'+esc(s.id)+'">Enregistrer la transmission</button></div>';
     }).join("");
     portal.innerHTML = '<div class="dashboard-head"><div><p class="eyebrow">ESPACE AGENT</p><h2>Bonjour '+esc([agent.Prenom,agent.nom].filter(Boolean).join(" "))+'</h2><p class="muted">Planning non modifiable · Pointage · Main courante</p></div><button id="agentLogoutBtn" class="danger" type="button">Se déconnecter</button></div><h3>Mon planning</h3>'+(cards || '<p class="muted">Aucune vacation affectée.</p>')+'<h3>Mes transmissions récentes</h3><div id="agentLogs"></div>';
     const lr = await db.from("main_courante").select("titre,description,priorite,created_at").eq("agent_id", agent.id).order("created_at", {ascending:false}).limit(20);
     if (lr.error) throw lr.error;
     $("agentLogs").innerHTML = (lr.data || []).map(x => '<div class="item"><b>'+esc(x.titre)+'</b> · '+esc(x.priorite||"normale")+'<p>'+esc(x.description)+'</p><small>'+esc(String(x.created_at||"").slice(0,16).replace("T"," "))+'</small></div>').join("") || '<p class="muted">Aucune transmission enregistrée.</p>';
+    portal.querySelectorAll("[data-agent-response]").forEach(b => b.onclick = async () => {
+      try {
+        b.disabled = true;
+        const shiftId = Number(b.dataset.shift);
+        if (!Number.isSafeInteger(shiftId)) throw new Error("Identifiant de vacation invalide.");
+        const result = await db.rpc("agent_respond_to_shift", {p_planning_id:shiftId, p_response:b.dataset.agentResponse});
+        if (result.error) throw result.error;
+        status(b.dataset.agentResponse === "acceptee" ? "Vacation acceptée et enregistrée." : "Vacation refusée et enregistrée.");
+        await loadAgentPortal(user, agent);
+      } catch (e) { showError(e); b.disabled = false; }
+    });
     portal.querySelectorAll("[data-agent-punch]").forEach(b => b.onclick = async () => {
       try {
         const s = shifts.find(x => String(x.id) === b.dataset.shift);
         if (!s) throw new Error("Vacation introuvable.");
-        const r = await db.from("pointages").insert({user_id:agent.user_id,agent_id:agent.id,site_id:s.site_id,planning_id:s.id,type:b.dataset.agentPunch,methode:"interface_agent"});
+        const r = await db.from("pointages").insert({user_id:agent.user_id,agent_id:agent.id,site_id:s.site_id,planning_id:s.id,type:b.dataset.agentPunch,methode:"bouton"});
         if (r.error) throw r.error;
         status(b.dataset.agentPunch === "debut" ? "Début de service pointé." : "Fin de service pointée.");
       } catch (e) { showError(e); }
@@ -592,7 +608,7 @@
         const site = sitesResult.data.find(x => String(x.id) === String(shift.site_id));
         const item = document.createElement("div");
         item.className = "item";
-        item.textContent = [shift.date_vacation, (shift.heure_debut || "").slice(0,5) + "–" + (shift.heure_fin || "").slice(0,5), duration > 0 ? formatDuration(duration) : "", agent ? [agent.Prenom, agent.nom].filter(Boolean).join(" ") : "Agent", site ? site.Nom : "Site", shift.statut || "prévue"].filter(Boolean).join(" — ");
+        item.textContent = [shift.date_vacation, (shift.heure_debut || "").slice(0,5) + "–" + (shift.heure_fin || "").slice(0,5), duration > 0 ? formatDuration(duration) : "", agent ? [agent.Prenom, agent.nom].filter(Boolean).join(" ") : "Agent", site ? site.Nom : "Site", shift.statut || "prévue", "Réponse agent : " + ((shift.reponse_agent || "en_attente") === "acceptee" ? "acceptée" : (shift.reponse_agent || "en_attente") === "refusee" ? "refusée" : "en attente")].filter(Boolean).join(" — ");
         const del=document.createElement("button");del.type="button";del.className="danger no-print";del.textContent="Supprimer la vacation";
         del.onclick=async()=>{if(!confirm("Supprimer cette vacation ?"))return;try{const u=await requireUser();const {error}=await db.from("planning").delete().eq("id",shift.id).eq("user_id",activeWorkspaceOwnerId || u.id);if(error)throw error;status("Vacation supprimée.");await refreshData()}catch(e){showError(e)}};
         item.appendChild(del);$("planningList").appendChild(item);
